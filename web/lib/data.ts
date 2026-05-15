@@ -1,45 +1,58 @@
 import "server-only";
 
-import fs from "fs/promises";
-import path from "path";
+import metaJson from "../public/data/meta.json";
+import provenanceJson from "../public/data/provenance.json";
+import synthesisJson from "../public/data/synthesis.json";
 
+import { CONFERENCES } from "./conferences";
 import type { MetaFile, ProvenanceRow, Synthesis } from "./types";
 
-export async function loadPublicData(): Promise<{
-  synthesis: Synthesis | null;
+export function loadPublicData(): {
+  synthesis: Synthesis;
   meta: MetaFile | null;
-}> {
-  const dir = path.join(process.cwd(), "public", "data");
-  let synthesis: Synthesis | null = null;
-  let meta: MetaFile | null = null;
-
-  try {
-    const synPath = path.join(dir, "synthesis.json");
-    const raw = await fs.readFile(synPath, "utf-8");
-    synthesis = JSON.parse(raw) as Synthesis;
-  } catch {
-    synthesis = null;
-  }
-
-  try {
-    const metaPath = path.join(dir, "meta.json");
-    const raw = await fs.readFile(metaPath, "utf-8");
-    meta = JSON.parse(raw) as MetaFile;
-  } catch {
-    meta = null;
-  }
-
-  return { synthesis, meta };
+} {
+  return {
+    synthesis: synthesisJson as Synthesis,
+    meta: metaJson as MetaFile,
+  };
 }
 
-export async function loadProvenance(): Promise<ProvenanceRow[] | null> {
-  const dir = path.join(process.cwd(), "public", "data");
-  try {
-    const p = path.join(dir, "provenance.json");
-    const raw = await fs.readFile(p, "utf-8");
-    const data = JSON.parse(raw) as unknown;
-    return Array.isArray(data) ? (data as ProvenanceRow[]) : null;
-  } catch {
-    return null;
+function conferenceExtras(id: string) {
+  const c = CONFERENCES.find((x) => x.id === id);
+  return { city: c?.city, country: c?.country, source_url: c?.url ?? "" };
+}
+
+/** Programme sources — merge provenance export with conference list for links and location. */
+export function loadProvenance(): ProvenanceRow[] {
+  const raw = provenanceJson as unknown;
+  const rows: ProvenanceRow[] = Array.isArray(raw) ? (raw as ProvenanceRow[]) : [];
+
+  if (rows.length === 0) {
+    return CONFERENCES.map((c) => ({
+      id: c.id,
+      name: c.name,
+      year: c.year,
+      source_url: c.url,
+      city: c.city,
+      country: c.country,
+      scraped_at: null,
+      scrape_error: null,
+      raw_chars: 0,
+      raw_excerpt: "",
+      raw_sha256_prefix: null,
+      extracted_session_count: 0,
+      extraction_note: null,
+      extraction_meta: null,
+    }));
   }
+
+  return rows.map((row) => {
+    const extra = conferenceExtras(row.id);
+    return {
+      ...row,
+      source_url: row.source_url || extra.source_url,
+      city: extra.city,
+      country: extra.country,
+    };
+  });
 }

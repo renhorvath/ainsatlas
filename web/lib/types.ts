@@ -25,6 +25,8 @@ export type ProvenanceRow = {
   name: string;
   year: string;
   source_url: string;
+  city?: string;
+  country?: string;
   scraped_at?: string | null;
   scrape_error?: string | null;
   raw_chars: number;

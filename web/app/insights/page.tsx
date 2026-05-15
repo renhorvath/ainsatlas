@@ -21,24 +21,8 @@ const toc = [
   { id: "findings", label: "Findings" },
 ] as const;
 
-export default async function InsightsPage() {
-  const { synthesis, meta } = await loadPublicData();
-
-  if (!synthesis) {
-    return (
-      <div className="mx-auto max-w-2xl px-5 py-24 md:px-8">
-        <h1 className="font-serif text-3xl text-parchment">No synthesis file</h1>
-        <p className="mt-4 text-parchment-muted leading-relaxed">
-          Add <code className="rounded bg-ink-card px-1.5 py-0.5 text-sm">web/public/data/synthesis.json</code>{" "}
-          or run <code className="rounded bg-ink-card px-1.5 py-0.5 text-sm">python run.py --all</code>{" "}
-          (report exports to <span className="text-gold">web/public/data/</span>).
-        </p>
-        <Link href="/" className="mt-8 inline-block font-medium text-gold hover:underline">
-          ← Home
-        </Link>
-      </div>
-    );
-  }
+export default function InsightsPage() {
+  const { synthesis, meta } = loadPublicData();
 
   const props = {
     universal: normalizeTopics(synthesis.universal_topics),
@@ -52,6 +36,8 @@ export default async function InsightsPage() {
     synthesisCopied: meta?.synthesisCopied,
   };
 
+  const isPreview = meta?.synthesisCopied === false;
+
   return (
     <div className="mx-auto max-w-6xl px-5 py-12 md:px-8 md:py-16">
       <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-16">
@@ -63,12 +49,21 @@ export default async function InsightsPage() {
             European programme landscape
           </h1>
           <p className="mt-5 max-w-2xl text-parchment-muted leading-relaxed">
-            Every bullet traces back to scraped programme pages. Open{" "}
+            Patterns read across public programme pages. Browse each festival on the{" "}
+            <Link href="/conferences" className="text-gold hover:underline">
+              Conferences
+            </Link> 
+            page or review programme inputs on{" "}
             <Link href="/sources" className="text-gold hover:underline">
               Sources
-            </Link>{" "}
-            for excerpts and URLs before treating this as ground truth.
+            </Link>
+            .
           </p>
+          {isPreview ? (
+            <p className="mt-4 rounded border border-gold/25 bg-gold-glow px-4 py-2 text-sm text-parchment-muted">
+              Preview analysis — refresh by running the pipeline with your API keys.
+            </p>
+          ) : null}
           {props.exportedAt ? (
             <p className="mt-4 text-xs text-parchment-dim">
               Last export{" "}
@@ -76,13 +71,9 @@ export default async function InsightsPage() {
                 dateStyle: "medium",
                 timeStyle: "short",
               })}
-              {props.synthesisCopied === false ? (
-                <span className="text-gold-dim"> · preview dataset</span>
-              ) : null}
             </p>
           ) : null}
         </div>
-
         <aside className="mt-10 hidden lg:sticky lg:top-28 lg:mt-0 lg:block lg:h-fit">
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-parchment-dim">
             On this page
@@ -101,7 +92,6 @@ export default async function InsightsPage() {
           </ul>
         </aside>
       </div>
-
       <div className="mt-16">
         <InsightsView {...props} />
       </div>

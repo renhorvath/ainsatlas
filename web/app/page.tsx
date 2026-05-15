@@ -3,8 +3,8 @@ import Link from "next/link";
 import { loadPublicData } from "@/lib/data";
 import { normalizeStrings, normalizeTopics } from "@/lib/normalize";
 
-export default async function HomePage() {
-  const { synthesis, meta } = await loadPublicData();
+export default function HomePage() {
+  const { synthesis, meta } = loadPublicData();
   const findings = synthesis
     ? normalizeStrings(synthesis.key_findings).slice(0, 3)
     : [];
