@@ -1,0 +1,13 @@
+.env
+.venv/
+venv/
+__pycache__/
+*.pyc
+data/raw/
+data/extracted/
+data/synthesis.json
+/report.html
+.firecrawl/
+web/node_modules/
+web/.next/
+.vercel

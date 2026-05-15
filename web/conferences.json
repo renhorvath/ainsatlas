@@ -1,0 +1,66 @@
+[
+  {
+    "id": "eurosonic_noorderslag",
+    "name": "Eurosonic Noorderslag",
+    "year": "2025",
+    "city": "Groningen",
+    "country": "NL",
+    "url": "https://esns.nl/en/conference/panels/"
+  },
+  {
+    "id": "reeperbahn_festival",
+    "name": "Reeperbahn Festival",
+    "year": "2025",
+    "city": "Hamburg",
+    "country": "DE",
+    "url": "https://www.reeperbahnfestival.com/en/conference"
+  },
+  {
+    "id": "tallinn_music_week",
+    "name": "Tallinn Music Week",
+    "year": "2025",
+    "city": "Tallinn",
+    "country": "EE",
+    "url": "https://pro.tmw.ee/programme"
+  },
+  {
+    "id": "mama_convention",
+    "name": "MaMA Convention",
+    "year": "2025",
+    "city": "Paris",
+    "country": "FR",
+    "url": "https://mama-musicandconvention.com/en/evenements-convention/"
+  },
+  {
+    "id": "bime",
+    "name": "BIME",
+    "year": "2025",
+    "city": "Bilbao",
+    "country": "ES",
+    "url": "https://bime.org/en/bime-bilbao-2025"
+  },
+  {
+    "id": "linecheck",
+    "name": "Linecheck",
+    "year": "2025",
+    "city": "Milan",
+    "country": "IT",
+    "url": "https://www.linecheck.it/meeting/"
+  },
+  {
+    "id": "the_great_escape",
+    "name": "The Great Escape",
+    "year": "2025",
+    "city": "Brighton",
+    "country": "UK",
+    "url": "https://greatescapefestival.com/the-tge-conference/"
+  },
+  {
+    "id": "womex",
+    "name": "WOMEX",
+    "year": "2025",
+    "city": "Manchester",
+    "country": "UK",
+    "url": "https://www.womex.com/programme/conference"
+  }
+]

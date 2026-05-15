@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-ink text-parchment antialiased font-sans text-[15px] sm:text-base;
+}
+
+::selection {
+  @apply bg-gold/35 text-ink;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

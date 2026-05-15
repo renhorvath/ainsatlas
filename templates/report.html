@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>European Music Conference Landscape 2025</title>
+  <style>
+    :root {
+      --bg: #1a1a1a;
+      --text: #f2f2f2;
+      --muted: #a3a3a3;
+      --accent: #c8a96e;
+      --line: #333;
+      --panel: #222;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Georgia", "Times New Roman", serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      font-size: 17px;
+    }
+    .wrap {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 4rem;
+    }
+    header {
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+    h1 {
+      font-size: 1.85rem;
+      font-weight: normal;
+      letter-spacing: 0.02em;
+      margin: 0 0 0.35rem;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 1.05rem;
+      font-style: italic;
+      margin: 0;
+    }
+    h2 {
+      font-size: 1.15rem;
+      font-weight: normal;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin: 2.75rem 0 1rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid var(--line);
+    }
+    h3 {
+      font-size: 1.05rem;
+      font-weight: normal;
+      color: var(--text);
+      margin: 1.25rem 0 0.5rem;
+    }
+    p { margin: 0.65rem 0; }
+    ul {
+      margin: 0.5rem 0 0;
+      padding-left: 1.2rem;
+    }
+    li { margin: 0.35rem 0; }
+    .muted { color: var(--muted); font-size: 0.92rem; }
+    .topic-list { list-style: none; padding-left: 0; }
+    .topic-list li {
+      display: flex;
+      align-items: baseline;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+      padding: 0.35rem 0;
+      border-bottom: 1px solid #2a2a2a;
+    }
+    .badge {
+      display: inline-block;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.15rem 0.45rem;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      border-radius: 2px;
+      white-space: nowrap;
+    }
+    .absent-panel {
+      background: var(--panel);
+      border-left: 3px solid var(--accent);
+      padding: 1rem 1.25rem;
+      margin: 1rem 0 2rem;
+    }
+    .profile {
+      margin-bottom: 1.25rem;
+    }
+    .profile strong {
+      color: var(--accent);
+      font-weight: normal;
+    }
+    ol.findings {
+      padding-left: 1.2rem;
+      margin-top: 0.5rem;
+    }
+    ol.findings li { margin: 0.65rem 0; }
+    footer {
+      margin-top: 3.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--line);
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+    footer table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.75rem;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 0.82rem;
+    }
+    footer td, footer th {
+      text-align: left;
+      padding: 0.35rem 0.5rem 0.35rem 0;
+      vertical-align: top;
+      border-bottom: 1px solid #2a2a2a;
+    }
+    footer th { color: var(--accent); font-weight: 600; width: 28%; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>European Music Conference Landscape 2025</h1>
+      <p class="subtitle">A cross-conference topic analysis</p>
+      <p class="muted" style="margin-top:1rem;">
+        Automated research brief — programme text scraped from industry-facing pages, structured by an LLM, then synthesized across events.
+      </p>
+    </header>
+
+    <section>
+      <h2>1. Universal Topics</h2>
+      <p class="muted">Themes with the widest footprint across conference programmes (model-estimated; see badge for conference count).</p>
+      {% if universal_topics %}
+      <ul class="topic-list">
+        {% for item in universal_topics %}
+        <li>
+          <span>{{ item.topic }}</span>
+          {% if item.conference_count %}
+          <span class="badge">{{ item.conference_count }} conferences</span>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="muted">No universal topics in synthesis output.</p>
+      {% endif %}
+    </section>
+
+    <section>
+      <h2>2. Emerging Topics</h2>
+      <p class="muted">Present in a subset of programmes — potential momentum, not yet ubiquitous.</p>
+      {% if emerging_topics %}
+      <ul class="topic-list">
+        {% for item in emerging_topics %}
+        <li>
+          <span>{{ item.topic }}</span>
+          {% if item.conference_count %}
+          <span class="badge">{{ item.conference_count }} conferences</span>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="muted">No emerging topics listed.</p>
+      {% endif %}
+      {% if niche_topics %}
+      <h3 style="margin-top:1.75rem;">Localized / niche themes</h3>
+      <p class="muted">Topics that appear concentrated in a single conference’s programme framing.</p>
+      <ul>
+        {% for t in niche_topics %}
+        <li>{{ t }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </section>
+
+    <section>
+      <h2>3. What Nobody Is Talking About</h2>
+      <p class="muted">Inferred gaps relative to typical industry discourse — treat as hypotheses, not empirical absence.</p>
+      <div class="absent-panel">
+        {% if absent_topics %}
+        <ul>
+          {% for t in absent_topics %}
+          <li>{{ t }}</li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="muted">No absent topics listed in synthesis.</p>
+        {% endif %}
+      </div>
+    </section>
+
+    <section>
+      <h2>4. Conference Profiles</h2>
+      {% if conference_profiles %}
+        {% for name, text in conference_profiles.items() %}
+        <div class="profile">
+          <p><strong>{{ name }}</strong> — {{ text }}</p>
+        </div>
+        {% endfor %}
+      {% else %}
+      <p class="muted">No conference profiles in synthesis.</p>
+      {% endif %}
+
+      {% if frequent_speakers %}
+      <h3>Repeated speakers (cross-event)</h3>
+      <ul>
+        {% for s in frequent_speakers %}
+        <li>{{ s }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </section>
+
+    <section>
+      <h2>5. Key Findings</h2>
+      {% if key_findings %}
+      <ol class="findings">
+        {% for f in key_findings %}
+        <li>{{ f }}</li>
+        {% endfor %}
+      </ol>
+      {% else %}
+      <p class="muted">No key findings in synthesis.</p>
+      {% endif %}
+    </section>
+
+    <footer>
+      <p><strong>Data sources &amp; freshness</strong></p>
+      <p class="muted">
+        Successful raw scrapes: {{ scrape_ok_count }} / {{ scrape_total }} configured conferences.
+        Scrape timestamps are UTC from the pipeline run.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Conference</th>
+            <th>Source URL</th>
+            <th>Scraped (UTC)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in sources %}
+          <tr>
+            <td>{{ row.name }} ({{ row.year }})</td>
+            <td><a href="{{ row.url }}" target="_blank" rel="noopener noreferrer">{{ row.url }}</a></td>
+            <td>
+              {% if row.error %}
+              <span style="color:#c97a7a;">Error: {{ row.error }}</span>
+              {% elif row.scraped_at %}
+              {{ row.scraped_at }}
+              {% else %}
+              —
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </footer>
+  </div>
+</body>
+</html>

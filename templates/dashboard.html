@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Conference map — control panel</title>
+  <style>
+    :root {
+      --bg: #1a1a1a;
+      --panel: #222;
+      --text: #f2f2f2;
+      --muted: #9a9a9a;
+      --accent: #c8a96e;
+      --line: #333;
+      --bad: #c97a7a;
+      --ok: #8fbc8f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 2rem 1.25rem 3rem; }
+    h1 {
+      font-weight: 600;
+      font-size: 1.35rem;
+      letter-spacing: 0.02em;
+      margin: 0 0 0.25rem;
+    }
+    .subtitle { color: var(--muted); margin: 0 0 1.5rem; font-size: 0.95rem; }
+    .row { display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-start; margin-bottom: 1.5rem; }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 1rem 1.15rem;
+      flex: 1 1 280px;
+    }
+    .card h2 {
+      margin: 0 0 0.75rem;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .pill {
+      display: inline-block;
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      margin-right: 0.35rem;
+      margin-bottom: 0.35rem;
+    }
+    .pill.ok { background: #1e2a1e; color: var(--ok); border: 1px solid #3d5c3d; }
+    .pill.no { background: #2a1e1e; color: var(--bad); border: 1px solid #5c3d3d; }
+    label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.35rem; }
+    select, button {
+      font: inherit;
+      color: var(--text);
+      background: #2c2c2c;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 0.45rem 0.65rem;
+    }
+    button {
+      background: var(--accent);
+      color: #1a1a1a;
+      border-color: #a88f5a;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 0.65rem;
+    }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    button.secondary {
+      background: transparent;
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+    .check { display: flex; align-items: center; gap: 0.45rem; margin-top: 0.5rem; color: var(--muted); font-size: 0.85rem; }
+    .actions-row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin-top: 0.5rem;
+    }
+    th, td {
+      text-align: left;
+      padding: 0.55rem 0.5rem;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+    th {
+      color: var(--accent);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .muted { color: var(--muted); }
+    .mono { font-family: ui-monospace, monospace; font-size: 0.82rem; }
+    pre.log {
+      background: #111;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 1rem;
+      max-height: 280px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.8rem;
+      margin: 0.5rem 0 0;
+    }
+    .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+    .status-dot.ok { background: var(--ok); }
+    .status-dot.warn { background: #d4a574; }
+    .status-dot.bad { background: var(--bad); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>European music conferences</h1>
+    <p class="subtitle">Local control panel — binds to 127.0.0.1 only. Uses the same <span class="mono">run.py</span> steps as the CLI.</p>
+
+    <div class="row">
+      <div class="card">
+        <h2>Environment</h2>
+        <div id="env-keys"></div>
+        <p class="muted" style="margin:0.75rem 0 0;font-size:0.82rem;">
+          <span id="artifacts"></span>
+        </p>
+        <p style="margin:0.75rem 0 0;">
+          <a id="link-report" href="/report" target="_blank" rel="noopener">Open report</a>
+          <span class="muted"> — </span>
+          <a href="#" id="refresh">Refresh status</a>
+        </p>
+      </div>
+      <div class="card">
+        <h2>Run pipeline</h2>
+        <label for="step">Step</label>
+        <div class="actions-row">
+          <select id="step">
+            <option value="all">all (scrape → extract → synthesize → report)</option>
+            <option value="scrape">scrape only</option>
+            <option value="extract">extract only</option>
+            <option value="synthesize">synthesize only</option>
+            <option value="report">report only</option>
+          </select>
+        </div>
+        <label class="check">
+          <input type="checkbox" id="mock" />
+          Mock scrape (skip Firecrawl; use existing <span class="mono">data/raw/</span>)
+        </label>
+        <button type="button" id="run">Run</button>
+        <button type="button" id="clear-log" class="secondary">Clear log</button>
+        <pre class="log" id="log"></pre>
+      </div>
+    </div>
+
+    <div class="card" style="flex:1 1 100%;">
+      <h2>Conference status</h2>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Conference</th>
+              <th>Raw scrape</th>
+              <th>Extracted</th>
+              <th>Source</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    function pill(ok, text) {
+      const s = document.createElement("span");
+      s.className = "pill " + (ok ? "ok" : "no");
+      s.textContent = text;
+      return s;
+    }
+
+    function fmtRaw(r) {
+      if (!r.exists) return { dot: "warn", label: "missing" };
+      if (r.error) return { dot: "bad", label: "error" };
+      return { dot: "ok", label: (r.chars || 0).toLocaleString() + " chars" };
+    }
+
+    function renderStatus(data) {
+      const k = data.keys;
+      $("env-keys").replaceChildren(
+        pill(k.firecrawl, "FIRECRAWL_API_KEY"),
+        pill(k.anthropic, "ANTHROPIC_API_KEY")
+      );
+      const art = [];
+      art.push(data.report_ready ? "report.html: ready" : "report.html: not yet");
+      art.push(data.synthesis_ready ? "synthesis.json: ready" : "synthesis.json: not yet");
+      $("artifacts").textContent = art.join(" · ");
+
+      const lr = $("link-report");
+      if (!data.report_ready) {
+        lr.style.opacity = "0.5";
+        lr.setAttribute("aria-disabled", "true");
+        lr.onclick = (e) => { e.preventDefault(); alert("Run the pipeline first to generate the report."); };
+      } else {
+        lr.style.opacity = "1";
+        lr.removeAttribute("aria-disabled");
+        lr.onclick = null;
+      }
+
+      const tb = $("tbody");
+      tb.replaceChildren();
+      for (const c of data.conferences) {
+        const tr = document.createElement("tr");
+        const raw = fmtRaw(c.raw);
+        const rd = c.raw;
+        const ex = c.extracted;
+        tr.innerHTML = `
+          <td><strong>${escapeHtml(c.name)}</strong><br><span class="muted">${escapeHtml(c.year)}</span></td>
+          <td class="mono">
+            <span class="status-dot ${raw.dot}"></span>${escapeHtml(raw.label)}
+            ${rd.scraped_at ? '<br><span class="muted">' + escapeHtml(rd.scraped_at) + "</span>" : ""}
+            ${rd.error ? '<br><span class="muted" style="color:var(--bad)">' + escapeHtml(rd.error.slice(0, 120)) + "</span>" : ""}
+          </td>
+          <td class="mono">
+            ${ex.exists
+              ? `<span class="status-dot ok"></span>${ex.sessions} sessions · ${ex.themes} themes`
+              : '<span class="status-dot warn"></span>missing'}
+            ${ex.note ? '<br><span class="muted">' + escapeHtml(ex.note) + "</span>" : ""}
+          </td>
+          <td class="mono"><a href="${escapeAttr(c.url)}" target="_blank" rel="noopener">programme</a></td>
+        `;
+        tb.appendChild(tr);
+      }
+    }
+
+    function escapeHtml(s) {
+      const d = document.createElement("div");
+      d.textContent = s;
+      return d.innerHTML;
+    }
+    function escapeAttr(s) {
+      return String(s).replace(/"/g, "&quot;");
+    }
+
+    async function loadStatus() {
+      const r = await fetch("/api/status");
+      renderStatus(await r.json());
+    }
+
+    $("refresh").addEventListener("click", (e) => {
+      e.preventDefault();
+      loadStatus();
+    });
+    $("clear-log").addEventListener("click", () => { $("log").textContent = ""; });
+
+    $("run").addEventListener("click", async () => {
+      const btn = $("run");
+      const step = $("step").value;
+      const mockScrape = $("mock").checked && (step === "scrape" || step === "all");
+      btn.disabled = true;
+      $("log").textContent = "Running…\n";
+      try {
+        const r = await fetch("/api/run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ step, mock: mockScrape }),
+        });
+        const j = await r.json();
+        $("log").textContent = (j.output || "") + (j.error ? "\n" + j.error : "");
+        if (!j.ok) $("log").textContent += "\n\nExit code: " + j.returncode;
+      } catch (e) {
+        $("log").textContent = String(e);
+      }
+      btn.disabled = false;
+      await loadStatus();
+    });
+
+    loadStatus();
+  </script>
+</body>
+</html>
