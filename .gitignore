@@ -10,6 +10,8 @@ data/synthesis.json
 .firecrawl/
 node_modules/
 .next/
+public/
+conferences.json
 web/node_modules/
 web/.next/
 .vercel

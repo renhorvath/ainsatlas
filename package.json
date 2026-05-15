@@ -12,7 +12,7 @@
   },
   "scripts": {
     "dev": "npm run dev --prefix web",
-    "build": "npm run build --prefix web && rm -rf .next && cp -R web/.next .next",
+    "build": "npm run build --prefix web && node scripts/vercel-sync-build.mjs",
     "start": "npm run start --prefix web",
     "lint": "npm run lint --prefix web"
   }

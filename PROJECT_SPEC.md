@@ -106,7 +106,7 @@ Pick **one** layout in the Vercel project (**Settings → Build & Deployment →
 - Root `vercel.json` is required with:
   - `"framework": "nextjs"`
   - `"installCommand": "npm install && npm install --prefix web"` (root install satisfies Vercel’s Next version probe; `--prefix web` pulls the full app deps)
-  - `"buildCommand": "npm run build"` — root `package.json` builds in `web/` then copies `web/.next` → `.next` at repo root (Vercel’s Next builder looks for `.next` at the project root when Root Directory is not `web`)
+  - `"buildCommand": "npm run build"` — builds in `web/`, then `scripts/vercel-sync-build.mjs` copies `.next`, `conferences.json`, and `public/` to the repo root (required when Root Directory is not `web`)
 
 ### General
 
