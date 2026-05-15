@@ -9,6 +9,7 @@ data/synthesis.json
 /report.html
 .firecrawl/
 node_modules/
+.next/
 web/node_modules/
 web/.next/
 .vercel
