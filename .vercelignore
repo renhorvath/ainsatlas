@@ -3,7 +3,7 @@
 templates/
 requirements-pipeline.txt
 requirements-dashboard.txt
-data/
+/data/
 .firecrawl/
 .env
 .env.*
