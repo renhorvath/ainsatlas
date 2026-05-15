@@ -54,6 +54,13 @@ export default async function SourcesPage() {
                 </a>
               </div>
 
+              {r.scrape_error ? (
+                <p className="mt-4 rounded border border-amber-500/35 bg-amber-950/30 px-4 py-3 text-sm text-parchment-muted">
+                  <span className="font-semibold text-amber-200/90">Scrape error · </span>
+                  {r.scrape_error}
+                </p>
+              ) : null}
+
               {r.scraped_at || r.raw_chars > 0 ? (
                 <dl className="mt-6 grid gap-3 text-sm sm:grid-cols-2">
                   {r.scraped_at ? (

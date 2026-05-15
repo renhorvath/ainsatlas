@@ -9,7 +9,7 @@ export async function scrapeConference(
     conference: conf.name,
     year: conf.year,
     url: conf.url,
-    scraped_at: new Date().toISOString(),
+    scraped_at: null,
     raw_content: null,
     error: null,
   };
@@ -41,6 +41,7 @@ export async function scrapeConference(
       return base;
     }
     base.raw_content = body.data?.markdown ?? "";
+    base.scraped_at = new Date().toISOString();
     return base;
   } catch (e) {
     base.error = e instanceof Error ? e.message : String(e);

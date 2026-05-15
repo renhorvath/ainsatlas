@@ -39,7 +39,7 @@ export type RawRecord = {
   conference: string;
   year: string;
   url: string;
-  scraped_at: string;
+  scraped_at: string | null;
   raw_content: string | null;
   error: string | null;
 };
