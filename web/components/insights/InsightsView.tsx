@@ -48,7 +48,7 @@ export function InsightsView({
           id="universal"
           kicker="01 · Consensus"
           title="Universal themes"
-          description="Ideas that surface loudly enough to count as ‘the industry speaking to itself’ across most of these programmes — with approximate footprint."
+          description="Cross-event patterns in the synthesis — check /sources for the programme text excerpts they’re grounded in."
         />
         <div className="grid gap-4 sm:grid-cols-2">
           {universal.length === 0 ? (
@@ -86,7 +86,7 @@ export function InsightsView({
           id="emerging"
           kicker="02 · Momentum"
           title="Emerging threads"
-          description="Topics gaining weight in a subset of agendas — useful for early positioning before they flatten into cliché."
+          description="Topics gaining weight in a subset of agendas."
         />
         <div className="flex flex-wrap gap-3">
           {emerging.length === 0 ? (
@@ -112,7 +112,7 @@ export function InsightsView({
           id="niche"
           kicker="03 · Local colour"
           title="Localized & niche themes"
-          description="Angles that read as anchored in one market or organizer lens — still valuable for competitive mapping."
+          description="Angles concentrated in one market or organizer lens."
         />
         <ul className="grid gap-3 md:grid-cols-2">
           {niche.length === 0 ? (
@@ -135,7 +135,7 @@ export function InsightsView({
           id="absent"
           kicker="04 · Silence"
           title="What the programmes barely touch"
-          description="Hypotheses, not proof — where an informed industry reader might expect discourse, but these programmes stay quiet. Use to stress-test your own agenda."
+          description="Model-inferred gaps — hypotheses, not proof of absence. Compare with excerpts on Sources."
         />
         <div className="relative overflow-hidden rounded-xl border border-gold/25 bg-gradient-to-br from-gold/10 via-ink-card to-ink-raised p-8 md:p-12">
           <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-gold/15 blur-2xl" />
@@ -144,10 +144,7 @@ export function InsightsView({
               <li className="text-parchment-muted">No absent topics in this file.</li>
             ) : (
               absent.map((t) => (
-                <li
-                  key={t}
-                  className="font-serif text-lg leading-snug text-parchment md:text-xl"
-                >
+                <li key={t} className="font-serif text-lg leading-snug text-parchment md:text-xl">
                   <span className="mr-2 text-gold">—</span>
                   {t}
                 </li>
@@ -169,9 +166,7 @@ export function InsightsView({
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">
               Names seen more than once
             </p>
-            <p className="mt-2 text-sm leading-relaxed text-parchment-muted">
-              {speakers.join(" · ")}
-            </p>
+            <p className="mt-2 text-sm leading-relaxed text-parchment-muted">{speakers.join(" · ")}</p>
           </div>
         ) : null}
         <div className="grid gap-5 md:grid-cols-2">
@@ -197,7 +192,7 @@ export function InsightsView({
           id="findings"
           kicker="06 · Strategy read"
           title="Key findings"
-          description="Compressed takeaways for leadership — each line should survive being read aloud in a five-minute brief."
+          description="Compressed takeaways — trace supporting programme text under Sources."
         />
         <ol className="space-y-0">
           {findings.length === 0 ? (

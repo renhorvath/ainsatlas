@@ -26,11 +26,10 @@ export const metadata: Metadata = {
     template: "%s — Conference Atlas",
   },
   description:
-    "Cross-conference analysis of European music industry programmes: shared themes, emerging threads, and gaps across ESNS, Reeperbahn, TMW, and more.",
+    "Cross-conference analysis of European music industry programmes: shared themes, emerging threads, and gaps.",
   openGraph: {
     title: "Conference Atlas",
-    description:
-      "A designer-led readout of Europe’s music conference conversation.",
+    description: "A designer-led readout of Europe’s music conference conversation.",
     type: "website",
   },
 };

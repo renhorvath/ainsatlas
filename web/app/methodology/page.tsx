@@ -7,19 +7,19 @@ export const metadata = {
 const steps = [
   {
     title: "Scrape",
-    body: "Public programme URLs are fetched with Firecrawl; markdown is stored per conference under data/raw/. Failures are logged — the chain keeps moving.",
+    body: "Public programme URLs are fetched with Firecrawl; markdown is stored per conference under data/raw/. Failures are logged in that JSON.",
   },
   {
     title: "Extract",
-    body: "Claude Sonnet turns each raw file into structured sessions, speakers, topic tags, and local themes — capped for context where pages are enormous.",
+    body: "Claude turns each raw file into structured sessions, speakers, topic tags, and themes — with _meta.source_url linking back to the scrape.",
   },
   {
     title: "Synthesize",
-    body: "A second model pass looks across all extractions: consensus topics, emerging clusters, blind spots, and conference personality sketches.",
+    body: "A second pass reads all extractions: consensus topics, emerging clusters, blind spots, and short conference sketches.",
   },
   {
     title: "Publish",
-    body: "The HTML brief is optional legacy output; this Next.js site reads the same synthesis JSON — exported into web/public/data/ when you run the report step.",
+    body: "report.html is optional; the Next.js site reads synthesis.json and provenance.json exported into web/public/data/ on the report step.",
   },
 ] as const;
 
@@ -31,8 +31,9 @@ export default function MethodologyPage() {
         How the atlas is built
       </h1>
       <p className="mt-6 text-lg leading-relaxed text-parchment-muted">
-        The goal is repeatable reading, not a live calendar. Everything is idempotent: you can
-        re-scrape and regenerate without hand-editing intermediate files.
+        The goal repeatable reading, not a live calendar. Re-scrape and regenerate without
+        hand-editing intermediates. Full spec:{" "}
+        <code className="text-gold">PROJECT_SPEC.md</code> at repo root.
       </p>
 
       <ol className="mt-16 space-y-12">
@@ -48,22 +49,19 @@ export default function MethodologyPage() {
       </ol>
 
       <div className="mt-16 rounded-xl border border-ink-line bg-ink-card p-8">
-        <h2 className="font-serif text-xl text-parchment">For your colleague</h2>
+        <h2 className="font-serif text-xl text-parchment">Vercel</h2>
         <p className="mt-3 text-sm leading-relaxed text-parchment-muted">
-          Add or remove sources in{" "}
-          <code className="text-gold">web/conferences.json</code> (committed with the repo); the
-          scraper and the Next.js conference list both read that file. Deploy the{" "}
-          <code className="text-gold">web</code> folder to Vercel (set{" "}
-          <strong className="text-parchment-muted">Root Directory</strong> to{" "}
-          <code className="text-gold">web</code>). After each local pipeline run, commit the updated{" "}
-          <code className="text-gold">web/public/data/synthesis.json</code> so production shows fresh
-          results — or wire CI later if you want hands-off deploys.
+          Set project <strong className="text-parchment">Root Directory</strong> to{" "}
+          <code className="text-gold">web</code>. Commit{" "}
+          <code className="text-gold">web/public/data/synthesis.json</code> and{" "}
+          <code className="text-gold">provenance.json</code> after each pipeline export so production
+          reflects the latest evidence trail.
         </p>
       </div>
 
       <p className="mt-12 text-sm text-parchment-dim">
-        <Link href="/insights" className="text-gold hover:underline">
-          View synthesis →
+        <Link href="/sources" className="text-gold hover:underline">
+          Sources (input excerpts) →
         </Link>
       </p>
     </div>

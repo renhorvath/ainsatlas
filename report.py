@@ -32,7 +32,7 @@ def load_sources_footer() -> Tuple[List[Dict[str, Any]], int]:
     ok = 0
     for conf in CONFERENCES:
         p = DATA_RAW / f"{conf['id']}.json"
-        row = {
+        row: Dict[str, Any] = {
             "name": conf["name"],
             "year": conf["year"],
             "url": conf["url"],

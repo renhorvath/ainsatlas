@@ -1,4 +1,4 @@
-# Python pipeline + local dashboard (production site is web/ only)
+# Python pipeline (production site is Next in web/ only)
 *.py
 templates/
 requirements-pipeline.txt

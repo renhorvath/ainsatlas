@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "ainsatlas",
-  "description": "Next.js app is in web/. Vercel: set Root Directory to web (recommended). These deps satisfy version detection if the project root is the repo.",
+  "description": "See PROJECT_SPEC.md. Next.js lives in web/.",
   "engines": {
     "node": ">=20.9.0 <23"
   },

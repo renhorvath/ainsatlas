@@ -23,9 +23,12 @@ export default async function HomePage() {
             Read across Europe&apos;s music conference conversation — in one calm view.
           </h1>
           <p className="animate-fade-up mt-6 max-w-2xl text-lg leading-relaxed text-parchment-muted opacity-0 [animation-delay:0.2s]">
-            We strip programme pages to their themes, then synthesize what repeats, what&apos;s
-            rising, and what never makes the agenda — so strategy meetings start with shared
-            language.
+            Programme pages are scraped to markdown, structured with an LLM, then synthesized for
+            pattern reading — with source excerpts on the{" "}
+            <Link href="/sources" className="text-gold hover:underline">
+              Sources
+            </Link>{" "}
+            page so nothing is a black box.
           </p>
           <div className="animate-fade-up mt-10 flex flex-wrap items-center gap-4 opacity-0 [animation-delay:0.28s]">
             <Link
@@ -57,19 +60,16 @@ export default async function HomePage() {
       <section className="mx-auto max-w-6xl px-5 py-20 md:px-8">
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
           <div>
-            <h2 className="font-serif text-3xl text-parchment md:text-4xl">
-              Why this exists
-            </h2>
+            <h2 className="font-serif text-3xl text-parchment md:text-4xl">Why this exists</h2>
             <p className="mt-4 text-parchment-muted leading-relaxed">
-              Festival and conference sites are loud, fragmented, and tuned for delegates — not
-              for comparative reading. Atlas flattens eight major European programmes into a single
-              editorial layout your team can actually scan in a meeting.
+              Festival and conference sites are loud and fragmented. Atlas flattens public programme
+              text into a single editorial layout with explicit traceability to inputs.
             </p>
             <ul className="mt-8 space-y-4 text-sm text-parchment-muted">
               {[
-                "Universal themes — what the circuit agrees is worth a session title",
-                "Emerging threads — appearing in a handful of agendas before it’s universal",
-                "Absent topics — what’s missing from the printed conversation, inferred carefully",
+                "Provenance — URLs, scrape time, and text excerpts per event",
+                "Structured extraction — sessions, speakers, themes before any cross-event synthesis",
+                "Deployable site — static JSON for Vercel; pipeline stays local",
               ].map((t) => (
                 <li key={t} className="flex gap-3">
                   <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gold" />
@@ -79,17 +79,14 @@ export default async function HomePage() {
             </ul>
           </div>
           <div className="rounded-lg border border-ink-line bg-ink-card p-8 md:p-10">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">
-              At a glance
-            </p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">At a glance</p>
             {!hasData ? (
               <p className="mt-4 text-parchment-muted leading-relaxed">
-                Run the Python pipeline to replace preview data with a fresh synthesis. Until
-                then, the{" "}
+                Run the Python pipeline to replace preview data. Until then, see sample output on{" "}
                 <Link href="/insights" className="text-gold underline-offset-2 hover:underline">
-                  insights page
-                </Link>{" "}
-                shows curated sample output so layouts stay reviewable.
+                  insights
+                </Link>
+                .
               </p>
             ) : (
               <ol className="mt-6 space-y-5">
@@ -108,10 +105,10 @@ export default async function HomePage() {
               </ol>
             )}
             <Link
-              href="/insights"
+              href="/sources"
               className="mt-8 inline-block text-sm font-semibold text-gold hover:text-gold-bright"
             >
-              Full analysis →
+              Verify inputs (sources) →
             </Link>
           </div>
         </div>

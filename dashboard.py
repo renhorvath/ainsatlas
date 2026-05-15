@@ -49,7 +49,6 @@ def build_status() -> dict:
     for c in CONFERENCES:
         raw = _raw_payload(c["id"])
         ext = _extracted_payload(c["id"])
-        raw_info = None
         if raw is not None:
             content = raw.get("raw_content") or ""
             raw_info = {
@@ -61,7 +60,6 @@ def build_status() -> dict:
         else:
             raw_info = {"exists": False, "scraped_at": None, "error": None, "chars": 0}
 
-        ext_info = None
         if ext is not None:
             sessions = ext.get("sessions") or []
             themes = ext.get("overall_themes") or []
@@ -144,7 +142,6 @@ def serve_report():
 
 @app.route("/api/run", methods=["POST"])
 def api_run():
-    # Pick up .env changes without restarting the UI server
     load_dotenv(override=True)
 
     data = request.get_json(force=True, silent=True) or {}

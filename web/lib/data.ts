@@ -3,7 +3,7 @@ import "server-only";
 import fs from "fs/promises";
 import path from "path";
 
-import type { MetaFile, Synthesis } from "./types";
+import type { MetaFile, ProvenanceRow, Synthesis } from "./types";
 
 export async function loadPublicData(): Promise<{
   synthesis: Synthesis | null;
@@ -30,4 +30,16 @@ export async function loadPublicData(): Promise<{
   }
 
   return { synthesis, meta };
+}
+
+export async function loadProvenance(): Promise<ProvenanceRow[] | null> {
+  const dir = path.join(process.cwd(), "public", "data");
+  try {
+    const p = path.join(dir, "provenance.json");
+    const raw = await fs.readFile(p, "utf-8");
+    const data = JSON.parse(raw) as unknown;
+    return Array.isArray(data) ? (data as ProvenanceRow[]) : null;
+  } catch {
+    return null;
+  }
 }

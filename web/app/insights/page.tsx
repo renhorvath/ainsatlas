@@ -31,7 +31,7 @@ export default async function InsightsPage() {
         <p className="mt-4 text-parchment-muted leading-relaxed">
           Add <code className="rounded bg-ink-card px-1.5 py-0.5 text-sm">web/public/data/synthesis.json</code>{" "}
           or run <code className="rounded bg-ink-card px-1.5 py-0.5 text-sm">python run.py --all</code>{" "}
-          after a successful pipeline (report step exports to <span className="text-gold">web/public/data/</span>).
+          (report exports to <span className="text-gold">web/public/data/</span>).
         </p>
         <Link href="/" className="mt-8 inline-block font-medium text-gold hover:underline">
           ← Home
@@ -63,8 +63,11 @@ export default async function InsightsPage() {
             European programme landscape
           </h1>
           <p className="mt-5 max-w-2xl text-parchment-muted leading-relaxed">
-            Structured from public conference pages — interpreted for teams who plan releases, DSP
-            partnerships, and touring years ahead of the calendar circuit.
+            Every bullet traces back to scraped programme pages. Open{" "}
+            <Link href="/sources" className="text-gold hover:underline">
+              Sources
+            </Link>{" "}
+            for excerpts and URLs before treating this as ground truth.
           </p>
           {props.exportedAt ? (
             <p className="mt-4 text-xs text-parchment-dim">

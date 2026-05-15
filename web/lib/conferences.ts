@@ -9,5 +9,4 @@ export type Conference = {
   country?: string;
 };
 
-/** Loaded from `web/conferences.json` — edit that file to add conferences. */
 export const CONFERENCES: readonly Conference[] = conferencesJson as Conference[];

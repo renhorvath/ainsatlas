@@ -59,7 +59,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--export-web",
         action="store_true",
-        help="Copy data/synthesis.json → web/public/data/ (for Next.js / Vercel)",
+        help="Copy synthesis + provenance → web/public/data/ (for Next.js / Vercel)",
     )
 
     args = parser.parse_args(argv)

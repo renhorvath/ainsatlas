@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { AddConferenceForm } from "./AddConferenceForm";
 import { CONFERENCES } from "@/lib/conferences";
 
 export const metadata = {
@@ -14,17 +15,12 @@ export default function ConferencesPage() {
         Programmes in the atlas
       </h1>
       <p className="mt-5 max-w-2xl text-parchment-muted leading-relaxed">
-        Industry programme pages wired in{" "}
-        <code className="rounded bg-ink-card px-1.5 text-sm text-parchment-muted">
-          web/conferences.json
-        </code>
-        — same file drives the Python scraper and this site. Add an object with{" "}
-        <code className="text-parchment-dim">id</code>, <code className="text-parchment-dim">name</code>,{" "}
-        <code className="text-parchment-dim">year</code>, <code className="text-parchment-dim">url</code>
-        , and optionally <code className="text-parchment-dim">city</code> /{" "}
-        <code className="text-parchment-dim">country</code> for cards here. Omit{" "}
-        <code className="text-parchment-dim">id</code> to auto-generate a slug from the name.
+        Sources are listed in{" "}
+        <code className="rounded bg-ink-card px-1.5 text-sm">web/conferences.json</code> — the same
+        list drives the Python scraper and this site.
       </p>
+
+      <AddConferenceForm />
 
       <ul className="mt-14 grid gap-5 md:grid-cols-2">
         {CONFERENCES.map((c) => (
@@ -37,7 +33,7 @@ export default function ConferencesPage() {
                 </span>
               </div>
               <p className="mt-2 text-sm text-parchment-muted">
-                {c.city}, {c.country}
+                {[c.city, c.country].filter(Boolean).join(", ") || "—"}
               </p>
               <Link
                 href={c.url}
@@ -54,7 +50,11 @@ export default function ConferencesPage() {
 
       <p className="mt-14 text-center text-sm text-parchment-dim">
         <Link href="/insights" className="text-gold hover:underline">
-          Back to insights
+          Insights
+        </Link>
+        {" · "}
+        <Link href="/sources" className="text-gold hover:underline">
+          Sources
         </Link>
       </p>
     </div>

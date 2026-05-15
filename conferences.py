@@ -1,4 +1,4 @@
-"""Conference sources — edit web/conferences.json or use the local dashboard (python dashboard.py)."""
+"""Conference sources — edit web/conferences.json, Next.js (local), or dashboard.py."""
 
 from __future__ import annotations
 
@@ -118,10 +118,7 @@ def append_conference_from_form(
     city: str | None = None,
     country: str | None = None,
 ) -> Dict[str, Any]:
-    """
-    Append one conference to web/conferences.json and refresh CONFERENCES.
-    conf_id, city, country are optional (conf_id defaults to slugified name).
-    """
+    """Append one conference to web/conferences.json and refresh CONFERENCES."""
     name = name.strip()
     year = year.strip()
     url = url.strip()
@@ -160,7 +157,3 @@ def get_conference_by_id(conf_id: str) -> Optional[Conference]:
         if c["id"] == conf_id:
             return c
     return None
-
-
-def all_conference_ids() -> List[str]:
-    return [c["id"] for c in CONFERENCES]
