@@ -36,36 +36,45 @@ export async function loadPublicData(): Promise<{
   };
 }
 
+function placeholderRow(c: {
+  id: string;
+  name: string;
+  year: string;
+  url: string;
+  city?: string;
+  country?: string;
+}): ProvenanceRow {
+  return {
+    id: c.id,
+    name: c.name,
+    year: c.year,
+    source_url: c.url,
+    city: c.city,
+    country: c.country,
+    scraped_at: null,
+    scrape_error: null,
+    raw_chars: 0,
+    raw_excerpt: "",
+    raw_sha256_prefix: null,
+    extracted_session_count: 0,
+    extraction_note: null,
+    extraction_meta: null,
+  };
+}
+
+/** One row per conference, merged with export provenance when present (handles new events before re-export). */
 export async function loadProvenance(): Promise<ProvenanceRow[]> {
   const bundle = await loadBundle();
-  const rows = bundle.provenance;
+  const byId = new Map(bundle.provenance.map((r) => [r.id, r]));
 
-  if (rows.length === 0) {
-    return bundle.conferences.map((c) => ({
-      id: c.id,
-      name: c.name,
-      year: c.year,
-      source_url: c.url,
-      city: c.city,
-      country: c.country,
-      scraped_at: null,
-      scrape_error: null,
-      raw_chars: 0,
-      raw_excerpt: "",
-      raw_sha256_prefix: null,
-      extracted_session_count: 0,
-      extraction_note: null,
-      extraction_meta: null,
-    }));
-  }
-
-  return rows.map((row) => {
-    const c = bundle.conferences.find((x) => x.id === row.id);
+  return bundle.conferences.map((c) => {
+    const row = byId.get(c.id);
+    if (!row) return placeholderRow(c);
     return {
       ...row,
-      source_url: row.source_url || c?.url || "",
-      city: c?.city,
-      country: c?.country,
+      source_url: row.source_url || c.url || "",
+      city: c.city,
+      country: c.country,
     };
   });
 }
