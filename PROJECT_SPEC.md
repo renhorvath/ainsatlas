@@ -84,7 +84,7 @@ repo-root/
 
 **CLI shorthand:** `python run.py --all` runs scrape → extract → synthesize → report (no mock unless `--mock` on scrape/all).
 
-**Model id:** `claude-sonnet-4-20250514` (config constant).
+**Model id:** `claude-sonnet-4-5-20250929` (config constant in `config.py`). If your Anthropic account returns 404 for this id, run a models list with your API key and set `CLAUDE_MODEL` to an available Sonnet family id.
 
 ---
 
