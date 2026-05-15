@@ -16,7 +16,7 @@ function mustExist(p) {
 
 mustExist(path.join(web, ".next"));
 mustExist(path.join(web, "conferences.json"));
-mustExist(path.join(web, "public"));
+mustExist(path.join(web, "data"));
 
 const nextDest = path.join(root, ".next");
 fs.rmSync(nextDest, { recursive: true, force: true });

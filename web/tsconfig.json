@@ -21,6 +21,7 @@
     "**/*.ts",
     "**/*.tsx",
     "conferences.json",
+    "data/**/*.json",
     ".next/types/**/*.ts"
   ],
   "exclude": ["node_modules"]

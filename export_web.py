@@ -13,7 +13,8 @@ from conferences import CONFERENCES
 from config import DATA_EXTRACTED, DATA_RAW, ROOT, SYNTHESIS_PATH
 from util import LOG
 
-WEB_DATA = ROOT / "web" / "public" / "data"
+WEB_DATA = ROOT / "web" / "data"
+WEB_DATA_PUBLIC = ROOT / "web" / "public" / "data"
 EXCERPT_CHARS = 1200
 
 
@@ -69,28 +70,28 @@ def build_provenances() -> List[Dict[str, Any]]:
 
 def export_for_next() -> None:
     WEB_DATA.mkdir(parents=True, exist_ok=True)
+    WEB_DATA_PUBLIC.mkdir(parents=True, exist_ok=True)
     meta: Dict[str, Any] = {
         "exportedAt": datetime.now(timezone.utc).isoformat(),
         "synthesisCopied": False,
     }
     if SYNTHESIS_PATH.is_file():
         shutil.copy2(SYNTHESIS_PATH, WEB_DATA / "synthesis.json")
+        shutil.copy2(SYNTHESIS_PATH, WEB_DATA_PUBLIC / "synthesis.json")
         meta["synthesisCopied"] = True
-        LOG.info("Copied synthesis → web/public/data/synthesis.json")
+        LOG.info("Copied synthesis → web/data/synthesis.json")
     else:
         LOG.warning(
-            "No %s — leaving existing web/public/data/synthesis.json unchanged",
+            "No %s — leaving existing web/data/synthesis.json unchanged",
             SYNTHESIS_PATH,
         )
 
     prov = build_provenances()
-    (WEB_DATA / "provenance.json").write_text(
-        json.dumps(prov, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
-    LOG.info("Wrote provenance (%d rows) → web/public/data/provenance.json", len(prov))
+    prov_text = json.dumps(prov, ensure_ascii=False, indent=2) + "\n"
+    (WEB_DATA / "provenance.json").write_text(prov_text, encoding="utf-8")
+    (WEB_DATA_PUBLIC / "provenance.json").write_text(prov_text, encoding="utf-8")
+    LOG.info("Wrote provenance (%d rows) → web/data/provenance.json", len(prov))
 
-    (WEB_DATA / "meta.json").write_text(
-        json.dumps(meta, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
+    meta_text = json.dumps(meta, ensure_ascii=False, indent=2) + "\n"
+    (WEB_DATA / "meta.json").write_text(meta_text, encoding="utf-8")
+    (WEB_DATA_PUBLIC / "meta.json").write_text(meta_text, encoding="utf-8")

@@ -1,8 +1,8 @@
 import "server-only";
 
-import metaJson from "../public/data/meta.json";
-import provenanceJson from "../public/data/provenance.json";
-import synthesisJson from "../public/data/synthesis.json";
+import metaJson from "../data/meta.json";
+import provenanceJson from "../data/provenance.json";
+import synthesisJson from "../data/synthesis.json";
 
 import { CONFERENCES } from "./conferences";
 import type { MetaFile, ProvenanceRow, Synthesis } from "./types";

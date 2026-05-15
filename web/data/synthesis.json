@@ -1,0 +1,70 @@
+{
+  "universal_topics": [
+    {
+      "topic": "Touring economics & slim margins",
+      "conference_count": 7,
+      "conferences": ["Eurosonic Noorderslag", "Reeperbahn", "TMW", "MaMA", "BIME", "Linecheck", "The Great Escape"]
+    },
+    {
+      "topic": "Streaming, algorithms & playlist access",
+      "conference_count": 6,
+      "conferences": ["BIME", "Reeperbahn", "TMW", "The Great Escape", "WOMEX", "ESNS"]
+    },
+    {
+      "topic": "Export, visas & showcase logic",
+      "conference_count": 8,
+      "conferences": ["WOMEX", "ESNS", "TMW", "BIME", "Reeperbahn", "MaMA", "Linecheck", "The Great Escape"]
+    },
+    {
+      "topic": "Sustainability as rhetoric on stage",
+      "conference_count": 6,
+      "conferences": ["The Great Escape", "ESNS", "Reeperbahn", "BIME", "Linecheck", "TMW"]
+    },
+    {
+      "topic": "Brand partnerships & sync-adjacent revenue",
+      "conference_count": 5,
+      "conferences": ["MaMA", "Reeperbahn", "BIME", "The Great Escape", "TMW"]
+    }
+  ],
+  "emerging_topics": [
+    { "topic": "AI tooling in marketing & A&R scouting", "conference_count": 3 },
+    { "topic": "Fan clubs & direct ticketing experiments", "conference_count": 3 },
+    { "topic": "Regional grant ecosystems as competitive moats", "conference_count": 2 },
+    { "topic": "Secondary market transparency (patchy)", "conference_count": 2 }
+  ],
+  "niche_topics": [
+    "Southern European colonial pop history as export narrative (Iberian-heavy rooms)",
+    "Baltic digital infrastructure pride as conference subplot",
+    "Parisian artist resale rights debates framed as ‘cultural exception’"
+  ],
+  "absent_topics": [
+    "Collective bargaining templates for non-unionized independents",
+    "Post-tour mental health protocols treated as operations, not feel-good panels",
+    "Open standards for auditability in streaming royalty disputes",
+    "Long-horizon climate planning beyond flight offset opt-ins"
+  ],
+  "conference_profiles": {
+    "Eurosonic Noorderslag": "A frost-lit January compass for the year ahead — heavy on tastemaker discovery, northern European coalitions, and the first handshake energy of showcase season.",
+    "Reeperbahn Festival": "Hamburg scale: corporates, publishers, and nightlife infrastructure in the same breath; digital and sync money never far from the bar conversation.",
+    "Tallinn Music Week": "Compact city, outsized Baltic-digital ambition — programme text leans civic innovation and cross-border independence as much as repertoire.",
+    "MaMA Convention": "Parisian density: rights, narrative, and ‘cultural exception’ thinking threaded through a Francophone-leaning speaker bench.",
+    "BIME": "Atlantic-facing trade floor — Ibero-American corridor and LATAM bridges show up in titles as often as northern European export talk.",
+    "Linecheck": "Milanese design sensibility meets supply-chain realism: production, manufacturing metaphors, and EU policy as craft.",
+    "The Great Escape": "Brighton’s industry holiday with a UK-export spine — balancing domestic ecosystem angst with international opportunity.",
+    "WOMEX": "Visa math, showcase diplomacy, and world-music export literacy — the most explicitly geopolitical grammar of the set."
+  },
+  "frequent_speakers": [
+    "Illustrative only in preview data — run the pipeline on real programmes to populate cross-event repeats."
+  ],
+  "key_findings": [
+    "The printed conversation clusters around monetization, mobility, and discovery — governance and labor stay in the footnotes unless a crisis headline forces them center.",
+    "‘Export’ is the default success narrative; domestic audience sustainability appears as decoration rather than infrastructure.",
+    "Sustainability shows up as commitments and panels far more often than as operational metrics tied to routing or budgeting.",
+    "AI appears in bursts tied to hype cycles — rarely as a grounded ops track spanning legal, ethics, and workflow.",
+    "Geographic diversity on marquees is often framed as market access rather than aesthetic or community reciprocity.",
+    "Secondary markets and transparent fan economics remain structurally under-addressed relative to their revenue share impact."
+  ],
+  "_meta": {
+    "note": "Sample synthesis for design review. Replace by running the Python pipeline and exporting to web/public/data/."
+  }
+}
