@@ -6,8 +6,10 @@ export const metadata = {
   title: "Sources",
 };
 
-export default function SourcesPage() {
-  const rows = loadProvenance();
+export const dynamic = "force-dynamic";
+
+export default async function SourcesPage() {
+  const rows = await loadProvenance();
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-12 md:px-8 md:py-16">

@@ -3,8 +3,10 @@ import Link from "next/link";
 import { loadPublicData } from "@/lib/data";
 import { normalizeStrings, normalizeTopics } from "@/lib/normalize";
 
-export default function HomePage() {
-  const { synthesis, meta } = loadPublicData();
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  const { synthesis, meta } = await loadPublicData();
   const findings = synthesis
     ? normalizeStrings(synthesis.key_findings).slice(0, 3)
     : [];
@@ -69,7 +71,7 @@ export default function HomePage() {
               {[
                 "Provenance — URLs, scrape time, and text excerpts per event",
                 "Structured extraction — sessions, speakers, themes before any cross-event synthesis",
-                "Deployable site — static JSON for Vercel; pipeline stays local",
+                "Server pipeline — scrape, extract, and synthesize on Vercel with your API keys",
               ].map((t) => (
                 <li key={t} className="flex gap-3">
                   <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gold" />

@@ -1,7 +1,6 @@
 import Link from "next/link";
 
-import { CONFERENCES } from "@/lib/conferences";
-import { isGithubPublishEnabled } from "@/lib/github";
+import { getConferences } from "@/lib/conferences";
 
 import { AddConferenceForm } from "./AddConferenceForm";
 
@@ -9,9 +8,12 @@ export const metadata = {
   title: "Conferences",
 };
 
-export default function ConferencesPage() {
-  const githubEnabled = isGithubPublishEnabled();
-  const count = CONFERENCES.length;
+export const maxDuration = 300;
+export const dynamic = "force-dynamic";
+
+export default async function ConferencesPage() {
+  const conferences = await getConferences();
+  const count = conferences.length;
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-12 md:px-8 md:py-16">
@@ -20,14 +22,14 @@ export default function ConferencesPage() {
         Festivals &amp; conferences
       </h1>
       <p className="mt-5 max-w-2xl text-parchment-muted leading-relaxed">
-        {count} European industry programme{count === 1 ? "" : "s"} in this edition — each card links
-        straight to the official conference programme page.
+        {count} European industry programme{count === 1 ? "" : "s"} — each card links straight to
+        the official conference programme page.
       </p>
 
-      <AddConferenceForm githubEnabled={githubEnabled} />
+      <AddConferenceForm />
 
       <ul className="mt-14 grid gap-5 md:grid-cols-2">
-        {CONFERENCES.map((c) => (
+        {conferences.map((c) => (
           <li key={c.id}>
             <article className="flex h-full flex-col rounded-lg border border-ink-line bg-ink-card p-6 transition hover:border-gold/30">
               <div className="flex items-start justify-between gap-3">

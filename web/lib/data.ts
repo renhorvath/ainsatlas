@@ -1,34 +1,25 @@
 import "server-only";
 
-import metaJson from "../data/meta.json";
-import provenanceJson from "../data/provenance.json";
-import synthesisJson from "../data/synthesis.json";
-
-import { CONFERENCES } from "./conferences";
+import { loadBundle } from "./atlas-bundle";
 import type { MetaFile, ProvenanceRow, Synthesis } from "./types";
 
-export function loadPublicData(): {
+export async function loadPublicData(): Promise<{
   synthesis: Synthesis;
   meta: MetaFile | null;
-} {
+}> {
+  const bundle = await loadBundle();
   return {
-    synthesis: synthesisJson as Synthesis,
-    meta: metaJson as MetaFile,
+    synthesis: (bundle.synthesis ?? {}) as Synthesis,
+    meta: bundle.meta,
   };
 }
 
-function conferenceExtras(id: string) {
-  const c = CONFERENCES.find((x) => x.id === id);
-  return { city: c?.city, country: c?.country, source_url: c?.url ?? "" };
-}
-
-/** Programme sources — merge provenance export with conference list for links and location. */
-export function loadProvenance(): ProvenanceRow[] {
-  const raw = provenanceJson as unknown;
-  const rows: ProvenanceRow[] = Array.isArray(raw) ? (raw as ProvenanceRow[]) : [];
+export async function loadProvenance(): Promise<ProvenanceRow[]> {
+  const bundle = await loadBundle();
+  const rows = bundle.provenance;
 
   if (rows.length === 0) {
-    return CONFERENCES.map((c) => ({
+    return bundle.conferences.map((c) => ({
       id: c.id,
       name: c.name,
       year: c.year,
@@ -47,12 +38,12 @@ export function loadProvenance(): ProvenanceRow[] {
   }
 
   return rows.map((row) => {
-    const extra = conferenceExtras(row.id);
+    const c = bundle.conferences.find((x) => x.id === row.id);
     return {
       ...row,
-      source_url: row.source_url || extra.source_url,
-      city: extra.city,
-      country: extra.country,
+      source_url: row.source_url || c?.url || "",
+      city: c?.city,
+      country: c?.country,
     };
   });
 }

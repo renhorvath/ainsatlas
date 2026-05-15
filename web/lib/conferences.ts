@@ -1,4 +1,6 @@
-import conferencesJson from "../conferences.json";
+import "server-only";
+
+import { loadBundle } from "./atlas-bundle";
 
 export type Conference = {
   id: string;
@@ -9,4 +11,7 @@ export type Conference = {
   country?: string;
 };
 
-export const CONFERENCES: readonly Conference[] = conferencesJson as Conference[];
+export async function getConferences(): Promise<readonly Conference[]> {
+  const bundle = await loadBundle();
+  return bundle.conferences;
+}

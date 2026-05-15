@@ -21,8 +21,10 @@ const toc = [
   { id: "findings", label: "Findings" },
 ] as const;
 
-export default function InsightsPage() {
-  const { synthesis, meta } = loadPublicData();
+export const dynamic = "force-dynamic";
+
+export default async function InsightsPage() {
+  const { synthesis, meta } = await loadPublicData();
 
   const props = {
     universal: normalizeTopics(synthesis.universal_topics),
