@@ -56,9 +56,11 @@ export function AddConferenceForm() {
       >
         <h2 className="font-serif text-xl text-parchment">Add a conference</h2>
         <p className="text-sm text-parchment-muted">
-          Scrapes the programme URL, extracts sessions with Claude, updates cross-event insights,
-          and publishes to the live site. Uses your Firecrawl and Anthropic keys on the server
-          (same as local <code className="text-gold">.env</code>).
+          <strong className="text-parchment">Add &amp; publish</strong> saves the event and runs a{" "}
+          <strong className="text-parchment">full refresh</strong> on all conferences (so Insights always
+          combines the same set of programmes). Uses Firecrawl + Anthropic from Vercel env (or local{" "}
+          <code className="text-gold">.env</code>). On Vercel, attach{" "}
+          <strong className="text-parchment">Blob storage</strong> so every page sees the same saved data.
         </p>
         <input type="hidden" name="runPipeline" value="1" />
         <div className="grid gap-3 sm:grid-cols-2">

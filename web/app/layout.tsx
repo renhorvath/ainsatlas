@@ -20,6 +20,9 @@ const dmSans = DM_Sans({
   display: "swap",
 });
 
+/** Allow long-running server actions (full multi-conference pipeline). */
+export const maxDuration = 300;
+
 export const metadata: Metadata = {
   title: {
     default: "Conference Atlas — European music industry programmes",

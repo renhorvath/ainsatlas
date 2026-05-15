@@ -1,5 +1,3 @@
-import "server-only";
-
 import { createHash } from "crypto";
 import { promises as fs } from "fs";
 import path from "path";
@@ -88,8 +86,15 @@ async function readBlob(): Promise<AtlasBundle | null> {
 }
 
 export async function loadBundle(): Promise<AtlasBundle> {
-  const blob = await readBlob();
-  if (blob) return blob;
+  const onVercel = process.env.VERCEL === "1";
+  const hasBlob = Boolean(process.env.BLOB_READ_WRITE_TOKEN?.trim());
+
+  if (hasBlob) {
+    const blob = await readBlob();
+    if (blob) return blob;
+    if (onVercel) return defaultBundle();
+  }
+
   const tmp = await readTmp();
   if (tmp) return tmp;
   const local = await readLocal();
@@ -97,10 +102,24 @@ export async function loadBundle(): Promise<AtlasBundle> {
   return defaultBundle();
 }
 
+export function atlasPersistenceHelpText(): string {
+  return (
+    "Connect Vercel Blob (Project → Storage → Blob → attach to this project). " +
+    "Without it, each server has its own copy of your data — Insights can show old synthesis while Sources shows updates."
+  );
+}
+
 export async function saveBundle(bundle: AtlasBundle): Promise<void> {
   const text = JSON.stringify(bundle, null, 2);
 
-  if (process.env.BLOB_READ_WRITE_TOKEN) {
+  const onVercel = process.env.VERCEL === "1";
+  const hasBlob = Boolean(process.env.BLOB_READ_WRITE_TOKEN?.trim());
+
+  if (onVercel && !hasBlob) {
+    throw new Error(atlasPersistenceHelpText());
+  }
+
+  if (hasBlob) {
     await put(BLOB_PATH, text, {
       access: "public",
       allowOverwrite: true,
@@ -108,13 +127,18 @@ export async function saveBundle(bundle: AtlasBundle): Promise<void> {
     });
   }
 
-  if (process.env.VERCEL === "1") {
+  if (onVercel) {
     await fs.writeFile(VERCEL_TMP, text, "utf-8");
     return;
   }
 
   await fs.mkdir(path.dirname(LOCAL_PATH), { recursive: true });
   await fs.writeFile(LOCAL_PATH, text, "utf-8");
+}
+
+/** True when Blob is wired (required for consistent reads across Vercel instances). */
+export function isBlobConfigured(): boolean {
+  return Boolean(process.env.BLOB_READ_WRITE_TOKEN?.trim());
 }
 
 export function buildProvenance(bundle: AtlasBundle): ProvenanceRow[] {

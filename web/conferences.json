@@ -62,5 +62,13 @@
     "city": "Manchester",
     "country": "UK",
     "url": "https://www.womex.com/programme/conference"
+  },
+  {
+    "id": "iceland_airwaves",
+    "name": "Iceland Airwaves",
+    "year": "2025",
+    "city": "Reykjavík",
+    "country": "IS",
+    "url": "https://icelandairwaves.is/"
   }
 ]

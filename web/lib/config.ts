@@ -1,5 +1,3 @@
-import "server-only";
-
 export const CLAUDE_MODEL = "claude-sonnet-4-5-20250929";
 export const EXTRACT_MAX_INPUT_CHARS = 180_000;
 export const PROVENANCE_EXCERPT_CHARS = 1200;

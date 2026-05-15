@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getConferences } from "@/lib/conferences";
 
 import { AddConferenceForm } from "./AddConferenceForm";
+import { StorageWarning } from "./StorageWarning";
 
 export const metadata = {
   title: "Conferences",
@@ -26,6 +27,7 @@ export default async function ConferencesPage() {
         the official conference programme page.
       </p>
 
+      <StorageWarning />
       <AddConferenceForm />
 
       <ul className="mt-14 grid gap-5 md:grid-cols-2">

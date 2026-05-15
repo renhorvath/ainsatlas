@@ -1,7 +1,29 @@
-import "server-only";
-
 import { loadBundle } from "./atlas-bundle";
 import type { MetaFile, ProvenanceRow, Synthesis } from "./types";
+
+export async function loadInsightsPageData(): Promise<{
+  synthesis: Synthesis;
+  meta: MetaFile | null;
+  coverage: { id: string; name: string; hasExtract: boolean }[];
+}> {
+  const bundle = await loadBundle();
+  const coverage = bundle.conferences.map((c) => {
+    const e = bundle.extracted[c.id];
+    const sessions = e?.sessions;
+    const substantive =
+      Boolean(e) &&
+      !String(e?.extraction_note ?? "")
+        .toLowerCase()
+        .startsWith("skipped") &&
+      (Array.isArray(sessions) ? sessions.length > 0 : false);
+    return { id: c.id, name: c.name, hasExtract: substantive };
+  });
+  return {
+    synthesis: (bundle.synthesis ?? {}) as Synthesis,
+    meta: bundle.meta,
+    coverage,
+  };
+}
 
 export async function loadPublicData(): Promise<{
   synthesis: Synthesis;

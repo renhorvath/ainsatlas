@@ -27,10 +27,11 @@ Produce ONE JSON object ONLY (no markdown fences, no commentary) with:
 }
 
 Rules:
-- universal_topics: topics clearly reflected in 5+ conferences (use programme evidence).
-- emerging_topics: 2-4 conferences.
-- conference_profiles: one key per exact conference name from the input data.
+- universal_topics: topics clearly reflected in 5+ conferences (use programme evidence). If there are fewer than 5 conferences with substantive programmes, lower the threshold and explain in key_findings.
+- emerging_topics: 2-4 conferences (or adjust if the set is small).
+- conference_profiles: REQUIRED — one entry for EVERY item in INPUT_JSON, using the exact "conference" field string (or _id if conference name missing). Do not omit a conference; if a programme was thin, say so in that profile.
 - frequent_speakers: only include when the same person (allow minor spelling variants) appears in >1 conference.
+- key_findings: mention any new or standout event by name when its programme clearly differs from the rest.
 - Be specific; avoid fluff.
 `;
 

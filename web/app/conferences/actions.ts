@@ -75,7 +75,9 @@ export async function addConferenceAction(formData: FormData): Promise<AddConfer
     await saveBundle(bundle);
 
     if (runNow) {
-      await runAtlasPipeline({ conferenceId: id });
+      /* Full refresh so every conference has an extraction in synthesis input.
+         Partial runs used to drop events with no extract row → stale 8-event synthesis on Vercel. */
+      await runAtlasPipeline();
     }
 
     revalidatePath("/", "layout");

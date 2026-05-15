@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { InsightsView } from "@/components/insights/InsightsView";
-import { loadPublicData } from "@/lib/data";
+import { loadInsightsPageData } from "@/lib/data";
 import {
   normalizeProfiles,
   normalizeStrings,
@@ -23,8 +23,10 @@ const toc = [
 
 export const dynamic = "force-dynamic";
 
+export const maxDuration = 300;
+
 export default async function InsightsPage() {
-  const { synthesis, meta } = await loadPublicData();
+  const { synthesis, meta, coverage } = await loadInsightsPageData();
 
   const props = {
     universal: normalizeTopics(synthesis.universal_topics),
@@ -75,6 +77,31 @@ export default async function InsightsPage() {
               })}
             </p>
           ) : null}
+          <div className="mt-6 rounded-lg border border-ink-line bg-ink-card p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-parchment-dim">
+              Conference coverage (last saved bundle)
+            </p>
+            <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm">
+              {coverage.map((row) => (
+                <li
+                  key={row.id}
+                  className={row.hasExtract ? "text-parchment" : "text-parchment-dim"}
+                  title={
+                    row.hasExtract
+                      ? "Programme extracted and fed synthesis"
+                      : "Not extracted — run “Refresh all conferences” on /conferences"
+                  }
+                >
+                  {row.hasExtract ? "✓ " : "○ "}
+                  {row.name}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-3 text-xs text-parchment-dim">
+              Only checked (✓) events contributed programme text to the latest cross-event analysis. If a name is
+              missing from the narrative below, it often had no extract here.
+            </p>
+          </div>
         </div>
         <aside className="mt-10 hidden lg:sticky lg:top-28 lg:mt-0 lg:block lg:h-fit">
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-parchment-dim">

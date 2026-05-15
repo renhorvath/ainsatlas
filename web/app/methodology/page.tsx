@@ -36,7 +36,8 @@ export default function MethodologyPage() {
           Conferences
         </Link>{" "}
         page. The server uses your Firecrawl and Anthropic keys (local <code className="text-gold">.env</code>{" "}
-        or Vercel environment variables).
+        or Vercel environment variables). On Vercel, attach <strong className="text-parchment">Blob</strong>{" "}
+        storage so every page reads the same saved data.
       </p>
 
       <ol className="mt-16 space-y-12">
