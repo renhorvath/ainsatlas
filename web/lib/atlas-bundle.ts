@@ -15,6 +15,15 @@ const BLOB_PATH = "atlas/bundle.json";
 const LOCAL_PATH = path.join(process.cwd(), ".atlas-store", "bundle.json");
 const VERCEL_TMP = "/tmp/atlas-bundle.json";
 
+/** Vercel names env `BLOB_READ_WRITE_TOKEN` for the first linked store, or `BLOB_2_READ_WRITE_TOKEN`, etc. */
+export function blobReadWriteToken(): string | undefined {
+  const t =
+    process.env.BLOB_READ_WRITE_TOKEN?.trim() ||
+    process.env.BLOB_2_READ_WRITE_TOKEN?.trim() ||
+    process.env.BLOB_3_READ_WRITE_TOKEN?.trim();
+  return t || undefined;
+}
+
 export type RawRecord = {
   conference: string;
   year: string;
@@ -74,9 +83,10 @@ async function readTmp(): Promise<AtlasBundle | null> {
 }
 
 async function readBlob(): Promise<AtlasBundle | null> {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) return null;
+  const token = blobReadWriteToken();
+  if (!token) return null;
   try {
-    const meta = await head(BLOB_PATH);
+    const meta = await head(BLOB_PATH, { token });
     const res = await fetch(meta.url, { cache: "no-store" });
     if (!res.ok) return null;
     return (await res.json()) as AtlasBundle;
@@ -87,7 +97,7 @@ async function readBlob(): Promise<AtlasBundle | null> {
 
 export async function loadBundle(): Promise<AtlasBundle> {
   const onVercel = process.env.VERCEL === "1";
-  const hasBlob = Boolean(process.env.BLOB_READ_WRITE_TOKEN?.trim());
+  const hasBlob = Boolean(blobReadWriteToken());
 
   if (hasBlob) {
     const blob = await readBlob();
@@ -113,17 +123,19 @@ export async function saveBundle(bundle: AtlasBundle): Promise<void> {
   const text = JSON.stringify(bundle, null, 2);
 
   const onVercel = process.env.VERCEL === "1";
-  const hasBlob = Boolean(process.env.BLOB_READ_WRITE_TOKEN?.trim());
+  const token = blobReadWriteToken();
+  const hasBlob = Boolean(token);
 
   if (onVercel && !hasBlob) {
     throw new Error(atlasPersistenceHelpText());
   }
 
-  if (hasBlob) {
+  if (hasBlob && token) {
     await put(BLOB_PATH, text, {
       access: "public",
       allowOverwrite: true,
       contentType: "application/json",
+      token,
     });
   }
 
@@ -138,7 +150,7 @@ export async function saveBundle(bundle: AtlasBundle): Promise<void> {
 
 /** True when Blob is wired (required for consistent reads across Vercel instances). */
 export function isBlobConfigured(): boolean {
-  return Boolean(process.env.BLOB_READ_WRITE_TOKEN?.trim());
+  return Boolean(blobReadWriteToken());
 }
 
 export function buildProvenance(bundle: AtlasBundle): ProvenanceRow[] {
