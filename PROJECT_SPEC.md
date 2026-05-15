@@ -27,8 +27,10 @@ The site must include a **Sources / evidence** page reading `provenance.json` so
 ```
 repo-root/
   PROJECT_SPEC.md          ← this file
-  package.json             ← root stub: declares next/react for Vercel detection; scripts delegate to web/
-  vercel.json              ← framework nextjs; install/build cd web
+  package.json             ← root stub: declares next/react so Vercel detects Next.js when Root Directory is repo root
+  package-lock.json        ← lockfile at root (same reason)
+  vercel.json              ← see §4: install/build use npm --prefix web when root is the Git root
+  web/vercel.json          ← framework hint when Root Directory is web/
   .gitignore
   .vercelignore            ← exclude Python pipeline from serverless bundle (optional)
   .env.example             ← FIRECRAWL_API_KEY, ANTHROPIC_API_KEY
@@ -90,14 +92,27 @@ repo-root/
 
 ## 4. Vercel deployment
 
-- **Framework:** Next.js 15 app in `web/`.
-- **Recommended:** Vercel project **Root Directory** = `web`. Then default install/build apply.
-- **If Root Directory stays repo root:** Root `package.json` must list `next` in `dependencies` (for version detection), and `vercel.json` must use:
+Pick **one** layout in the Vercel project (**Settings → Build & Deployment → Root Directory**):
+
+### A) Root Directory = `web` (recommended)
+
+- Leave **Install** / **Build** as defaults (or rely on `web/vercel.json`, which only sets `"framework": "nextjs"`).
+- Vercel reads `web/package.json`, which lists `next` in `dependencies` — this fixes **“No Next.js version detected”**.
+- Do **not** use a root `vercel.json` that runs `cd web && …` here: from `web/` that path is wrong.
+
+### B) Root Directory = repo root (Git checkout root)
+
+- Root `package.json` and `package-lock.json` also declare `next` so version detection succeeds.
+- Root `vercel.json` is required with:
   - `"framework": "nextjs"`
-  - `"installCommand": "cd web && npm install"`
-  - `"buildCommand": "cd web && npm run build"`
-- **Never** ship Flask as the Vercel entrypoint. Python stays local.
-- **Secrets:** Only needed locally for the pipeline (`.env`). Vercel needs **no** Firecrawl/Anthropic keys unless you later add server-side features.
+  - `"installCommand": "npm install --prefix web"`
+  - `"buildCommand": "npm run build --prefix web"`
+- Uses `npm --prefix web` instead of `cd web` for consistent paths.
+
+### General
+
+- **Never** ship Flask as the Vercel entrypoint; Python stays local.
+- **Secrets:** only for the local pipeline (`.env`). The static site does not need API keys on Vercel.
 - **Static data:** Commit `web/public/data/synthesis.json` (+ `provenance.json` after a run) so production shows real output; `meta.json` timestamps the export.
 
 ---
