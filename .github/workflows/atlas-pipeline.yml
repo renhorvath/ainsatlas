@@ -1,0 +1,42 @@
+name: Atlas pipeline
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - web/conferences.json
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pipeline dependencies
+        run: pip install -r requirements-pipeline.txt
+
+      - name: Run scrape → extract → synthesize → export
+        env:
+          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python run.py --all
+
+      - name: Commit exported site data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web/data web/public/data
+          if git diff --staged --quiet; then
+            echo "No changes to web/data — skipping commit."
+            exit 0
+          fi
+          git commit -m "chore: export pipeline data for Vercel [skip ci]"
+          git push

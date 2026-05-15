@@ -1,15 +1,18 @@
 import Link from "next/link";
 
 import { CONFERENCES } from "@/lib/conferences";
+import { isGithubPublishEnabled } from "@/lib/github";
+
 import { AddConferenceForm } from "./AddConferenceForm";
 
 export const metadata = {
   title: "Conferences",
 };
 
-const showAddForm = process.env.VERCEL !== "1";
-
 export default function ConferencesPage() {
+  const githubEnabled = isGithubPublishEnabled();
+  const count = CONFERENCES.length;
+
   return (
     <div className="mx-auto max-w-6xl px-5 py-12 md:px-8 md:py-16">
       <p className="text-xs font-semibold uppercase tracking-[0.28em] text-gold">Coverage</p>
@@ -17,11 +20,11 @@ export default function ConferencesPage() {
         Festivals &amp; conferences
       </h1>
       <p className="mt-5 max-w-2xl text-parchment-muted leading-relaxed">
-        Eight European industry programmes in this edition — each card links straight to the
-        official conference programme page.
+        {count} European industry programme{count === 1 ? "" : "s"} in this edition — each card links
+        straight to the official conference programme page.
       </p>
 
-      {showAddForm ? <AddConferenceForm /> : null}
+      <AddConferenceForm githubEnabled={githubEnabled} />
 
       <ul className="mt-14 grid gap-5 md:grid-cols-2">
         {CONFERENCES.map((c) => (

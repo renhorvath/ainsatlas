@@ -19,7 +19,7 @@ const steps = [
   },
   {
     title: "Publish",
-    body: "report.html is optional; the Next.js site reads synthesis.json and provenance.json exported into web/public/data/ on the report step.",
+    body: "report.html is optional; the Next.js site bundles synthesis.json, provenance.json, and meta.json from web/data/ (written on the report step).",
   },
 ] as const;
 
@@ -49,13 +49,20 @@ export default function MethodologyPage() {
       </ol>
 
       <div className="mt-16 rounded-xl border border-ink-line bg-ink-card p-8">
-        <h2 className="font-serif text-xl text-parchment">Vercel</h2>
+        <h2 className="font-serif text-xl text-parchment">Publish to production</h2>
         <p className="mt-3 text-sm leading-relaxed text-parchment-muted">
-          Set project <strong className="text-parchment">Root Directory</strong> to{" "}
-          <code className="text-gold">web</code>. Commit{" "}
-          <code className="text-gold">web/public/data/synthesis.json</code> and{" "}
-          <code className="text-gold">provenance.json</code> after each pipeline export so production
-          reflects the latest evidence trail.
+          Set Vercel <strong className="text-parchment">Root Directory</strong> to{" "}
+          <code className="text-gold">web</code>. After each pipeline run, commit{" "}
+          <code className="text-gold">web/data/synthesis.json</code>,{" "}
+          <code className="text-gold">provenance.json</code>, and{" "}
+          <code className="text-gold">meta.json</code> (or use the GitHub Action{" "}
+          <code className="text-gold">atlas-pipeline.yml</code>, which commits them automatically).
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-parchment-muted">
+          On the live site, use <strong className="text-parchment">Conferences → Add a conference</strong>{" "}
+          with <code className="text-gold">GITHUB_TOKEN</code> on Vercel, or edit{" "}
+          <code className="text-gold">web/conferences.json</code> on GitHub and run the Atlas pipeline
+          workflow (Firecrawl + Anthropic secrets in GitHub Actions).
         </p>
       </div>
 

@@ -4,6 +4,14 @@ import { promises as fs } from "fs";
 import path from "path";
 import { revalidatePath } from "next/cache";
 
+import {
+  conferencesJsonPath,
+  isGithubPublishEnabled,
+  readRepoFile,
+  triggerAtlasPipeline,
+  writeRepoFile,
+} from "@/lib/github";
+
 function slugify(text: string): string {
   return (
     text
@@ -22,14 +30,24 @@ function normalizeId(row: Record<string, unknown>, index: number): string {
   return cid;
 }
 
-async function readRows(): Promise<Record<string, unknown>[]> {
+async function readRowsFromDisk(): Promise<Record<string, unknown>[]> {
   const file = path.join(process.cwd(), "conferences.json");
   const raw = JSON.parse(await fs.readFile(file, "utf-8")) as unknown;
   if (!Array.isArray(raw)) throw new Error("conferences.json must be an array");
   return raw as Record<string, unknown>[];
 }
 
-async function writeRows(rows: Record<string, unknown>[]): Promise<void> {
+async function readRows(): Promise<Record<string, unknown>[]> {
+  if (isGithubPublishEnabled()) {
+    const { text } = await readRepoFile(conferencesJsonPath());
+    const raw = JSON.parse(text) as unknown;
+    if (!Array.isArray(raw)) throw new Error("conferences.json must be an array");
+    return raw as Record<string, unknown>[];
+  }
+  return readRowsFromDisk();
+}
+
+function validateRows(rows: Record<string, unknown>[]): void {
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
     if (!row || typeof row !== "object") throw new Error(`Item ${i} must be object`);
@@ -44,6 +62,10 @@ async function writeRows(rows: Record<string, unknown>[]): Promise<void> {
     if (seen.has(rid)) throw new Error(`Duplicate id: ${rid}`);
     seen.add(rid);
   }
+}
+
+async function writeRowsLocal(rows: Record<string, unknown>[]): Promise<void> {
+  validateRows(rows);
   const file = path.join(process.cwd(), "conferences.json");
   const tmp = `${file}.tmp`;
   const text = JSON.stringify(rows, null, 2) + "\n";
@@ -51,21 +73,45 @@ async function writeRows(rows: Record<string, unknown>[]): Promise<void> {
   await fs.rename(tmp, file);
 }
 
+async function writeRows(rows: Record<string, unknown>[]): Promise<void> {
+  validateRows(rows);
+  const text = JSON.stringify(rows, null, 2) + "\n";
+  if (isGithubPublishEnabled()) {
+    const filePath = conferencesJsonPath();
+    let sha: string | undefined;
+    try {
+      const existing = await readRepoFile(filePath);
+      sha = existing.sha;
+    } catch {
+      sha = undefined;
+    }
+    await writeRepoFile(
+      filePath,
+      text,
+      `Add/update conference in atlas`,
+      sha,
+    );
+    return;
+  }
+  await writeRowsLocal(rows);
+}
+
 export type AddConferenceResult =
-  | { ok: true; id: string }
+  | { ok: true; id: string; pipelineQueued: boolean }
   | { ok: false; error: string };
 
 export async function addConferenceAction(formData: FormData): Promise<AddConferenceResult> {
-  const blocked =
+  const useGithub = isGithubPublishEnabled();
+  const blockedLocal =
+    !useGithub &&
     process.env.VERCEL === "1" &&
-    process.env.NODE_ENV === "production" &&
-    process.env.ALLOW_VERCEL_CONF_WRITE !== "1";
+    process.env.NODE_ENV === "production";
 
-  if (blocked) {
+  if (blockedLocal) {
     return {
       ok: false,
       error:
-        "Saving conferences is disabled on production Vercel (read-only filesystem). Edit web/conferences.json in GitHub, or run python dashboard.py / npm run dev locally. See PROJECT_SPEC.md.",
+        "Saving is disabled on Vercel without GITHUB_TOKEN. Edit web/conferences.json on GitHub, or add GITHUB_TOKEN in Vercel env (repo contents + actions scope).",
     };
   }
 
@@ -94,7 +140,29 @@ export async function addConferenceAction(formData: FormData): Promise<AddConfer
     rows.push(entry);
     await writeRows(rows);
     revalidatePath("/conferences");
-    return { ok: true, id };
+    return {
+      ok: true,
+      id,
+      pipelineQueued: useGithub,
+    };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : String(e) };
+  }
+}
+
+export type PipelineResult = { ok: true } | { ok: false; error: string };
+
+export async function runPipelineAction(): Promise<PipelineResult> {
+  if (!isGithubPublishEnabled()) {
+    return {
+      ok: false,
+      error:
+        "Set GITHUB_TOKEN on Vercel (repo contents + actions) or run the Atlas pipeline workflow on GitHub manually.",
+    };
+  }
+  try {
+    await triggerAtlasPipeline();
+    return { ok: true };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) };
   }
