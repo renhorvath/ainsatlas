@@ -15,13 +15,24 @@ const BLOB_PATH = "atlas/bundle.json";
 const LOCAL_PATH = path.join(process.cwd(), ".atlas-store", "bundle.json");
 const VERCEL_TMP = "/tmp/atlas-bundle.json";
 
-/** Vercel names env `BLOB_READ_WRITE_TOKEN` for the first linked store, or `BLOB_2_READ_WRITE_TOKEN`, etc. */
+/** Read-write token for the active Blob store.
+ * Prefer `BLOB_2_` / `BLOB_3_` before `BLOB_READ_WRITE_TOKEN`: deleting an older store can leave
+ * a dead first token in env while the new store only has `BLOB_2_READ_WRITE_TOKEN`. */
 export function blobReadWriteToken(): string | undefined {
-  const t =
-    process.env.BLOB_READ_WRITE_TOKEN?.trim() ||
-    process.env.BLOB_2_READ_WRITE_TOKEN?.trim() ||
-    process.env.BLOB_3_READ_WRITE_TOKEN?.trim();
-  return t || undefined;
+  const env = process.env;
+  for (const n of [9, 8, 7, 6, 5, 4, 3, 2] as const) {
+    const v = env[`BLOB_${n}_READ_WRITE_TOKEN`]?.trim();
+    if (v) return v;
+  }
+  return env.BLOB_READ_WRITE_TOKEN?.trim() || undefined;
+}
+
+export function blobTokenStaleStoreMessage(): string {
+  return (
+    "Vercel Blob token points at a deleted store. In the project → Environment Variables, remove " +
+    "every BLOB_*_READ_WRITE_TOKEN that is unused, keep only the token from your current Blob store, " +
+    "then Redeploy. Or Storage → disconnect the broken store and connect the new one again."
+  );
 }
 
 export type RawRecord = {
@@ -131,12 +142,20 @@ export async function saveBundle(bundle: AtlasBundle): Promise<void> {
   }
 
   if (hasBlob && token) {
-    await put(BLOB_PATH, text, {
-      access: "public",
-      allowOverwrite: true,
-      contentType: "application/json",
-      token,
-    });
+    try {
+      await put(BLOB_PATH, text, {
+        access: "public",
+        allowOverwrite: true,
+        contentType: "application/json",
+        token,
+      });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (/does not exist/i.test(msg)) {
+        throw new Error(`${blobTokenStaleStoreMessage()} (${msg})`);
+      }
+      throw e;
+    }
   }
 
   if (onVercel) {
