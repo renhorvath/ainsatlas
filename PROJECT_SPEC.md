@@ -105,7 +105,7 @@ Pick **one** layout in the Vercel project (**Settings → Build & Deployment →
 - Root `package.json` and `package-lock.json` also declare `next` so version detection succeeds.
 - Root `vercel.json` is required with:
   - `"framework": "nextjs"`
-  - `"installCommand": "npm install --prefix web"`
+  - `"installCommand": "npm install && npm install --prefix web"` (root install satisfies Vercel’s Next version probe; `--prefix web` pulls the full app deps)
   - `"buildCommand": "npm run build --prefix web"`
 - Uses `npm --prefix web` instead of `cd web` for consistent paths.
 
