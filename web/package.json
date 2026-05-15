@@ -6,10 +6,11 @@
     "node": ">=20.9.0 <23"
   },
   "scripts": {
-    "predev": "node -e \"if(parseInt(process.version.slice(1),10)>=23)console.warn('Use Node 20 or 22 LTS if dev crashes — Node 23+ often breaks Next.js PostCSS workers.');\"",
-    "dev": "next dev",
-    "dev:clean": "rm -rf .next && next dev",
-    "dev:turbo": "next dev --turbopack",
+    "predev": "node scripts/check-node.mjs",
+    "dev": "rm -rf .next && next dev",
+    "dev:incremental": "node scripts/check-node.mjs && next dev",
+    "dev:clean": "node scripts/check-node.mjs && rm -rf .next && next dev",
+    "dev:turbo": "node scripts/check-node.mjs && next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
