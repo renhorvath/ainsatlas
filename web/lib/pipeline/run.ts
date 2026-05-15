@@ -12,6 +12,13 @@ export type PipelineOptions = {
   conferenceId?: string;
 };
 
+function anySuccessfulScrape(bundle: AtlasBundle, conferences: Conference[]): boolean {
+  return conferences.some((c) => {
+    const r = bundle.raw[c.id];
+    return Boolean(r && !r.error && (r.raw_content ?? "").trim().length > 0);
+  });
+}
+
 export async function runAtlasPipeline(options: PipelineOptions = {}): Promise<void> {
   const { firecrawl, anthropic } = requireKeys();
   const client = new Anthropic({ apiKey: anthropic });
@@ -36,6 +43,21 @@ export async function runAtlasPipeline(options: PipelineOptions = {}): Promise<v
       bundle.raw[conf.id],
       conf.id,
     )) as AtlasBundle["extracted"][string];
+  }
+
+  if (!anySuccessfulScrape(bundle, targets)) {
+    const samples = targets
+      .map((c) => {
+        const r = bundle.raw[c.id];
+        return r ? `${c.name}: ${r.error || "(empty body)"}` : `${c.name}: (no raw)`;
+      })
+      .slice(0, 4)
+      .join(" · ");
+    throw new Error(
+      `All ${targets.length} Firecrawl scrapes failed — no programme text to analyze. ${samples}. ` +
+        `On Vercel: Project → Settings → Environment Variables → ensure FIRECRAWL_API_KEY is set for Production ` +
+        `(same value as local .env; key usually starts with fc-). Redeploy after saving, then run Refresh again.`,
+    );
   }
 
   bundle.synthesis = (await synthesizeAll(

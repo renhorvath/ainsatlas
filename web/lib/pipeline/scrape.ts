@@ -27,13 +27,17 @@ export async function scrapeConference(
         onlyMainContent: true,
       }),
     });
-    const body = (await res.json()) as {
+    const body = (await res.json().catch(() => ({}))) as {
       success?: boolean;
       data?: { markdown?: string };
       error?: string;
     };
     if (!res.ok || !body.success) {
-      base.error = body.error ?? `Firecrawl HTTP ${res.status}`;
+      base.error =
+        body.error?.trim() ||
+        (res.status === 401 || res.status === 403
+          ? `Firecrawl auth failed (HTTP ${res.status}) — check FIRECRAWL_API_KEY`
+          : `Firecrawl HTTP ${res.status}`);
       return base;
     }
     base.raw_content = body.data?.markdown ?? "";
