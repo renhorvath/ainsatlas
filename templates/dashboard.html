@@ -67,6 +67,29 @@
       border-radius: 4px;
       padding: 0.45rem 0.65rem;
     }
+    input[type="text"],
+    input[type="url"] {
+      font: inherit;
+      color: var(--text);
+      background: #2c2c2c;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 0.45rem 0.65rem;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+    input::placeholder { color: #666; }
+    .form-grid {
+      display: grid;
+      gap: 0.65rem;
+    }
+    @media (min-width: 640px) {
+      .form-grid.two { grid-template-columns: 1fr 1fr; }
+    }
+    .form-msg { margin-top: 0.5rem; font-size: 0.85rem; }
+    .form-msg.ok { color: var(--ok); }
+    .form-msg.bad { color: var(--bad); }
     button {
       background: var(--accent);
       color: #1a1a1a;
@@ -126,7 +149,42 @@
 <body>
   <div class="wrap">
     <h1>European music conferences</h1>
-    <p class="subtitle">Local control panel — binds to 127.0.0.1 only. Uses the same <span class="mono">run.py</span> steps as the CLI.</p>
+    <p class="subtitle">Local-only control panel — start with <span class="mono">python dashboard.py</span> (not deployed on Vercel). Same <span class="mono">run.py</span> steps as the CLI. <strong>Add conferences</strong> writes <span class="mono">web/conferences.json</span> (restart Next dev to refresh cards).</p>
+
+    <div class="row">
+      <div class="card" style="flex:1 1 100%; max-width:720px;">
+        <h2>Add conference</h2>
+        <p class="muted" style="margin:0 0 0.75rem;font-size:0.82rem;">Saves to JSON and updates this dashboard immediately. Then run <span class="mono">scrape</span> (or <span class="mono">all</span>) for the new URL.</p>
+        <div class="form-grid two">
+          <div>
+            <label for="add-name">Name <span class="muted">(required)</span></label>
+            <input type="text" id="add-name" name="name" autocomplete="off" placeholder="e.g. Sonic Visions" />
+          </div>
+          <div>
+            <label for="add-year">Year <span class="muted">(required)</span></label>
+            <input type="text" id="add-year" name="year" autocomplete="off" placeholder="2025" />
+          </div>
+          <div style="grid-column: 1 / -1;">
+            <label for="add-url">Programme URL <span class="muted">(required)</span></label>
+            <input type="url" id="add-url" name="url" autocomplete="off" placeholder="https://…" />
+          </div>
+          <div>
+            <label for="add-id">Id <span class="muted">(optional, filename slug)</span></label>
+            <input type="text" id="add-id" name="id" autocomplete="off" placeholder="auto from name" />
+          </div>
+          <div>
+            <label for="add-city">City <span class="muted">(optional)</span></label>
+            <input type="text" id="add-city" name="city" autocomplete="off" />
+          </div>
+          <div>
+            <label for="add-country">Country <span class="muted">(optional, e.g. DE)</span></label>
+            <input type="text" id="add-country" name="country" autocomplete="off" />
+          </div>
+        </div>
+        <button type="button" id="add-submit">Add conference</button>
+        <div id="add-msg" class="form-msg" role="status"></div>
+      </div>
+    </div>
 
     <div class="row">
       <div class="card">
@@ -263,6 +321,53 @@
       loadStatus();
     });
     $("clear-log").addEventListener("click", () => { $("log").textContent = ""; });
+
+    $("add-submit").addEventListener("click", async () => {
+      const msg = $("add-msg");
+      msg.textContent = "";
+      msg.className = "form-msg";
+      const name = $("add-name").value.trim();
+      const year = $("add-year").value.trim();
+      const url = $("add-url").value.trim();
+      const id = $("add-id").value.trim();
+      const city = $("add-city").value.trim();
+      const country = $("add-country").value.trim();
+      if (!name || !year || !url) {
+        msg.className = "form-msg bad";
+        msg.textContent = "Name, year, and URL are required.";
+        return;
+      }
+      const btn = $("add-submit");
+      btn.disabled = true;
+      try {
+        const r = await fetch("/api/conferences", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name,
+            year,
+            url,
+            id: id || undefined,
+            city: city || undefined,
+            country: country || undefined,
+          }),
+        });
+        const j = await r.json();
+        if (!r.ok || !j.ok) {
+          msg.className = "form-msg bad";
+          msg.textContent = j.error || "Request failed";
+        } else {
+          msg.className = "form-msg ok";
+          msg.textContent = "Saved as id \u201c" + (j.conference && j.conference.id) + "\u201d — run scrape for this URL.";
+          ["add-name", "add-year", "add-url", "add-id", "add-city", "add-country"].forEach((fid) => { $(fid).value = ""; });
+          await loadStatus();
+        }
+      } catch (e) {
+        msg.className = "form-msg bad";
+        msg.textContent = String(e);
+      }
+      btn.disabled = false;
+    });
 
     $("run").addEventListener("click", async () => {
       const btn = $("run");

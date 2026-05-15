@@ -1,0 +1,10 @@
+# Python pipeline + local dashboard (production site is web/ only)
+*.py
+templates/
+requirements-pipeline.txt
+requirements-dashboard.txt
+data/
+.firecrawl/
+.env
+.env.*
+!.env.example

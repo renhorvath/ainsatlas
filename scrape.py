@@ -77,7 +77,7 @@ def run_scrape(*, mock: bool) -> None:
     if not FIRECRAWL_API_KEY:
         raise SystemExit("FIRECRAWL_API_KEY is not set. Add it to .env or the environment.")
     if FirecrawlClient is None:
-        raise SystemExit("firecrawl-py is not installed. pip install -r requirements.txt")
+        raise SystemExit("firecrawl-py is not installed. pip install -r requirements-pipeline.txt")
 
     client = FirecrawlClient(api_key=FIRECRAWL_API_KEY)
     for conf in CONFERENCES:

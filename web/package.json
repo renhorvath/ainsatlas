@@ -2,8 +2,14 @@
   "name": "european-music-conference-atlas",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20.9.0 <23"
+  },
   "scripts": {
-    "dev": "next dev --turbopack",
+    "predev": "node -e \"if(parseInt(process.version.slice(1),10)>=23)console.warn('Use Node 20 or 22 LTS if dev crashes — Node 23+ often breaks Next.js PostCSS workers.');\"",
+    "dev": "next dev",
+    "dev:clean": "rm -rf .next && next dev",
+    "dev:turbo": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

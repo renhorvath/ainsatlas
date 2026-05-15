@@ -1,4 +1,4 @@
-"""Local web UI for the conference map pipeline (localhost only)."""
+"""Local-only web UI for the pipeline (Flask). Not used on Vercel — run: python dashboard.py"""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ import sys
 from dotenv import load_dotenv
 from flask import Flask, Response, jsonify, render_template, request
 
-from conferences import CONFERENCES
+from conferences import CONFERENCES, append_conference_from_form
 from config import (
     DATA_EXTRACTED,
     DATA_RAW,
@@ -99,6 +99,25 @@ def build_status() -> dict:
 @app.route("/")
 def index():
     return render_template("dashboard.html")
+
+
+@app.route("/api/conferences", methods=["POST"])
+def api_add_conference():
+    data = request.get_json(force=True, silent=True) or {}
+    try:
+        rec = append_conference_from_form(
+            name=str(data.get("name") or ""),
+            year=str(data.get("year") or ""),
+            url=str(data.get("url") or ""),
+            conf_id=(str(data.get("id") or "").strip() or None),
+            city=(str(data.get("city") or "").strip() or None),
+            country=(str(data.get("country") or "").strip() or None),
+        )
+    except ValueError as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 400
+    except OSError as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+    return jsonify({"ok": True, "conference": rec})
 
 
 @app.route("/api/status")
