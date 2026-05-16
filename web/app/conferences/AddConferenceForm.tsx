@@ -134,7 +134,10 @@ export function AddConferenceForm() {
         <AddButton />
         {addState?.ok === true ? (
           <p className="text-sm text-gold" role="status">
-            Published &quot;{addState.id}&quot; — insights and sources are updated.
+            Saved &quot;{addState.id}&quot;.
+            {addState.queued
+              ? " Full refresh is running in the background (about 5–10 minutes). Reload Sources and Insights when finished."
+              : " Insights and sources are updated."}
           </p>
         ) : null}
         {addState && addState.ok === false ? (
@@ -148,7 +151,9 @@ export function AddConferenceForm() {
         <RefreshButton />
         {refreshState?.ok === true ? (
           <p className="mt-3 text-sm text-gold" role="status">
-            All conferences re-scraped and synthesis updated.
+            {refreshState.queued
+              ? "Refresh started in the background (about 5–10 minutes for all conferences). Reload this page, then check Sources and Insights."
+              : "All conferences re-scraped and synthesis updated."}
           </p>
         ) : null}
         {refreshState && refreshState.ok === false ? (

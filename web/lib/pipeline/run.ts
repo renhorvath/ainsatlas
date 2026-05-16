@@ -1,3 +1,6 @@
+import { readFile } from "fs/promises";
+import path from "path";
+
 import Anthropic from "@anthropic-ai/sdk";
 
 import { buildProvenance, loadBundle, saveBundle, type AtlasBundle } from "../atlas-bundle";
@@ -12,6 +15,19 @@ export type PipelineOptions = {
   conferenceId?: string;
 };
 
+/** Use web/conferences.json so URL edits in Git apply on the next refresh (not stale Blob list). */
+async function syncConferencesFromFile(bundle: AtlasBundle): Promise<void> {
+  try {
+    const text = await readFile(path.join(process.cwd(), "conferences.json"), "utf-8");
+    const rows = JSON.parse(text) as Conference[];
+    if (Array.isArray(rows) && rows.length > 0) {
+      bundle.conferences = rows;
+    }
+  } catch {
+    // keep bundle list if file missing
+  }
+}
+
 function anySuccessfulScrape(bundle: AtlasBundle, conferences: Conference[]): boolean {
   return conferences.some((c) => {
     const r = bundle.raw[c.id];
@@ -23,6 +39,7 @@ export async function runAtlasPipeline(options: PipelineOptions = {}): Promise<v
   const { firecrawl, anthropic } = requireKeys();
   const client = new Anthropic({ apiKey: anthropic });
   const bundle = await loadBundle();
+  await syncConferencesFromFile(bundle);
 
   const targets: Conference[] = options.conferenceId
     ? bundle.conferences.filter((c) => c.id === options.conferenceId)
@@ -36,14 +53,26 @@ export async function runAtlasPipeline(options: PipelineOptions = {}): Promise<v
     );
   }
 
-  for (const conf of targets) {
-    bundle.raw[conf.id] = await scrapeConference(conf, firecrawl);
-    bundle.extracted[conf.id] = (await extractFromRaw(
-      client,
-      bundle.raw[conf.id],
-      conf.id,
-    )) as AtlasBundle["extracted"][string];
+  // Scrape + extract in parallel (sequential was ~7+ min locally; exceeds Vercel 300s limit).
+  const pairs = await Promise.all(
+    targets.map(async (conf) => {
+      const raw = await scrapeConference(conf, firecrawl);
+      const extracted = (await extractFromRaw(client, raw, conf.id)) as AtlasBundle["extracted"][string];
+      return { id: conf.id, raw, extracted };
+    }),
+  );
+
+  for (const { id, raw, extracted } of pairs) {
+    bundle.raw[id] = raw;
+    bundle.extracted[id] = extracted;
   }
+
+  bundle.provenance = buildProvenance(bundle);
+  bundle.meta = {
+    exportedAt: new Date().toISOString(),
+    synthesisCopied: false,
+  };
+  await saveBundle(bundle);
 
   if (!anySuccessfulScrape(bundle, targets)) {
     const samples = targets

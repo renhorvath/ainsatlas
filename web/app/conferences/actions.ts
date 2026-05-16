@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 
 import { loadBundle, saveBundle } from "@/lib/atlas-bundle";
 import { runAtlasPipeline } from "@/lib/pipeline/run";
@@ -40,8 +41,29 @@ function validateConferences(rows: Record<string, unknown>[]): void {
   }
 }
 
+async function runPipelineWork(): Promise<void> {
+  await runAtlasPipeline();
+  revalidatePath("/", "layout");
+}
+
+/** On Vercel, return immediately and run in `after()` so the HTTP request does not hit the 300s limit. */
+async function runPipelineMaybeBackground(): Promise<{ queued: boolean }> {
+  if (process.env.VERCEL === "1") {
+    after(async () => {
+      try {
+        await runPipelineWork();
+      } catch (e) {
+        console.error("[atlas pipeline]", e);
+      }
+    });
+    return { queued: true };
+  }
+  await runPipelineWork();
+  return { queued: false };
+}
+
 export type AddConferenceResult =
-  | { ok: true; id: string }
+  | { ok: true; id: string; queued: boolean }
   | { ok: false; error: string };
 
 export async function addConferenceAction(formData: FormData): Promise<AddConferenceResult> {
@@ -74,26 +96,26 @@ export async function addConferenceAction(formData: FormData): Promise<AddConfer
     bundle.conferences = rows as typeof bundle.conferences;
     await saveBundle(bundle);
 
+    let queued = false;
     if (runNow) {
-      /* Full refresh so every conference has an extraction in synthesis input.
-         Partial runs used to drop events with no extract row → stale 8-event synthesis on Vercel. */
-      await runAtlasPipeline();
+      ({ queued } = await runPipelineMaybeBackground());
     }
 
     revalidatePath("/", "layout");
-    return { ok: true, id };
+    return { ok: true, id, queued };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) };
   }
 }
 
-export type PipelineResult = { ok: true } | { ok: false; error: string };
+export type PipelineResult =
+  | { ok: true; queued: boolean }
+  | { ok: false; error: string };
 
 export async function runPipelineAction(): Promise<PipelineResult> {
   try {
-    await runAtlasPipeline();
-    revalidatePath("/", "layout");
-    return { ok: true };
+    const { queued } = await runPipelineMaybeBackground();
+    return { ok: true, queued };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) };
   }
