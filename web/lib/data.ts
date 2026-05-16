@@ -1,4 +1,5 @@
 import { loadBundle } from "./atlas-bundle";
+import { hasSubstantiveExtract } from "./extract-coverage";
 import type { MetaFile, ProvenanceRow, Synthesis } from "./types";
 
 export async function loadInsightsPageData(): Promise<{
@@ -7,17 +8,11 @@ export async function loadInsightsPageData(): Promise<{
   coverage: { id: string; name: string; hasExtract: boolean }[];
 }> {
   const bundle = await loadBundle();
-  const coverage = bundle.conferences.map((c) => {
-    const e = bundle.extracted[c.id];
-    const sessions = e?.sessions;
-    const substantive =
-      Boolean(e) &&
-      !String(e?.extraction_note ?? "")
-        .toLowerCase()
-        .startsWith("skipped") &&
-      (Array.isArray(sessions) ? sessions.length > 0 : false);
-    return { id: c.id, name: c.name, hasExtract: substantive };
-  });
+  const coverage = bundle.conferences.map((c) => ({
+    id: c.id,
+    name: c.name,
+    hasExtract: hasSubstantiveExtract(bundle.extracted[c.id]),
+  }));
   return {
     synthesis: (bundle.synthesis ?? {}) as Synthesis,
     meta: bundle.meta,

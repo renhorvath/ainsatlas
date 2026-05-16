@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 
 import { loadBundle, saveBundle } from "@/lib/atlas-bundle";
-import { runAtlasPipeline } from "@/lib/pipeline/run";
+import { runAtlasPipeline, runScrapeExtractPhase, runSynthesisPhase } from "@/lib/pipeline/run";
 
 function slugify(text: string): string {
   return (
@@ -41,24 +41,54 @@ function validateConferences(rows: Record<string, unknown>[]): void {
   }
 }
 
-async function runPipelineWork(): Promise<void> {
-  await runAtlasPipeline();
+function revalidateAtlas() {
   revalidatePath("/", "layout");
 }
 
-/** On Vercel, return immediately and run in `after()` so the HTTP request does not hit the 300s limit. */
+async function runFullPipelineOnVercel(): Promise<void> {
+  await runScrapeExtractPhase();
+  revalidateAtlas();
+  after(async () => {
+    try {
+      await runSynthesisPhase();
+      revalidateAtlas();
+    } catch (e) {
+      console.error("[atlas synthesis]", e);
+    }
+  });
+}
+
+/** On Vercel, return immediately; scrape in `after()`, then chain synthesis in a second `after()`. */
 async function runPipelineMaybeBackground(): Promise<{ queued: boolean }> {
   if (process.env.VERCEL === "1") {
     after(async () => {
       try {
-        await runPipelineWork();
+        await runFullPipelineOnVercel();
       } catch (e) {
         console.error("[atlas pipeline]", e);
       }
     });
     return { queued: true };
   }
-  await runPipelineWork();
+  await runAtlasPipeline();
+  revalidateAtlas();
+  return { queued: false };
+}
+
+async function runSynthesisMaybeBackground(): Promise<{ queued: boolean }> {
+  if (process.env.VERCEL === "1") {
+    after(async () => {
+      try {
+        await runSynthesisPhase();
+        revalidateAtlas();
+      } catch (e) {
+        console.error("[atlas synthesis]", e);
+      }
+    });
+    return { queued: true };
+  }
+  await runSynthesisPhase();
+  revalidateAtlas();
   return { queued: false };
 }
 
@@ -101,7 +131,7 @@ export async function addConferenceAction(formData: FormData): Promise<AddConfer
       ({ queued } = await runPipelineMaybeBackground());
     }
 
-    revalidatePath("/", "layout");
+    revalidateAtlas();
     return { ok: true, id, queued };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) };
@@ -115,6 +145,15 @@ export type PipelineResult =
 export async function runPipelineAction(): Promise<PipelineResult> {
   try {
     const { queued } = await runPipelineMaybeBackground();
+    return { ok: true, queued };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : String(e) };
+  }
+}
+
+export async function runSynthesisAction(): Promise<PipelineResult> {
+  try {
+    const { queued } = await runSynthesisMaybeBackground();
     return { ok: true, queued };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) };

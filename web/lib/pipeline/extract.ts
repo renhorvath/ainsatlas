@@ -59,29 +59,39 @@ export async function extractFromRaw(
       "\n\n[CONTENT TRUNCATED FOR MODEL CONTEXT — tail omitted]\n";
   }
 
-  const msg = await client.messages.create({
-    model: CLAUDE_MODEL,
-    max_tokens: 16_384,
-    messages: [
-      {
-        role: "user",
-        content: `${EXTRACTION_INSTRUCTIONS}\n\n---\nPROGRAM TEXT:\n\n${content}`,
-      },
-    ],
-  });
+  try {
+    const msg = await client.messages.create({
+      model: CLAUDE_MODEL,
+      max_tokens: 16_384,
+      messages: [
+        {
+          role: "user",
+          content: `${EXTRACTION_INSTRUCTIONS}\n\n---\nPROGRAM TEXT:\n\n${content}`,
+        },
+      ],
+    });
 
-  const outText = msg.content
-    .filter((b) => b.type === "text")
-    .map((b) => b.text)
-    .join("");
+    const outText = msg.content
+      .filter((b) => b.type === "text")
+      .map((b) => b.text)
+      .join("");
 
-  const data = parseJsonObject(outText);
-  data.conference = data.conference ?? raw.conference;
-  data.year = data.year ?? raw.year;
-  data._meta = {
-    source_url: raw.url,
-    scraped_at: raw.scraped_at,
-    raw_file: confId,
-  };
-  return data;
+    const data = parseJsonObject(outText);
+    data.conference = data.conference ?? raw.conference;
+    data.year = data.year ?? raw.year;
+    data._meta = {
+      source_url: raw.url,
+      scraped_at: raw.scraped_at,
+      raw_file: confId,
+    };
+    return data;
+  } catch (e) {
+    return {
+      conference: raw.conference,
+      year: raw.year,
+      sessions: [],
+      overall_themes: [],
+      extraction_note: `Skipped: ${e instanceof Error ? e.message : String(e)}`,
+    };
+  }
 }

@@ -40,7 +40,8 @@ export default async function InsightsPage() {
     synthesisCopied: meta?.synthesisCopied,
   };
 
-  const isPreview = meta?.synthesisCopied === false;
+  const synthesisPending = meta?.synthesisCopied === false;
+  const isPreview = synthesisPending && !props.findings.length && !Object.keys(props.profiles).length;
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-12 md:px-8 md:py-16">
@@ -63,7 +64,17 @@ export default async function InsightsPage() {
             </Link>
             .
           </p>
-          {isPreview ? (
+          {synthesisPending ? (
+            <p className="mt-4 rounded border border-gold/25 bg-gold-glow px-4 py-2 text-sm text-parchment-muted">
+              Sources are up to date, but cross-event insights are still generating or were interrupted.
+              On{" "}
+              <Link href="/conferences" className="text-gold hover:underline">
+                Conferences
+              </Link>
+              , use <strong className="text-parchment">Update insights only</strong> (about 2–3 minutes, no
+              re-scrape). If that fails, run a full refresh.
+            </p>
+          ) : isPreview ? (
             <p className="mt-4 rounded border border-gold/25 bg-gold-glow px-4 py-2 text-sm text-parchment-muted">
               Preview analysis — refresh by running the pipeline with your API keys.
             </p>
@@ -122,7 +133,14 @@ export default async function InsightsPage() {
         </aside>
       </div>
       <div className="mt-16">
-        <InsightsView {...props} />
+        {synthesisPending ? (
+          <p className="text-parchment-muted leading-relaxed">
+            Insights will appear here after synthesis completes. Conference coverage above shows which
+            programmes were structured for the model.
+          </p>
+        ) : (
+          <InsightsView {...props} />
+        )}
       </div>
     </div>
   );

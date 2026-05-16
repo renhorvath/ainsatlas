@@ -2,7 +2,13 @@
 
 import { useFormState, useFormStatus } from "react-dom";
 
-import { addConferenceAction, runPipelineAction, type AddConferenceResult, type PipelineResult } from "./actions";
+import {
+  addConferenceAction,
+  runPipelineAction,
+  runSynthesisAction,
+  type AddConferenceResult,
+  type PipelineResult,
+} from "./actions";
 
 function AddButton() {
   const { pending } = useFormStatus();
@@ -30,6 +36,19 @@ function RefreshButton() {
   );
 }
 
+function SynthesisButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="inline-flex rounded border border-gold/40 px-5 py-2.5 text-sm font-semibold text-gold transition hover:border-gold disabled:opacity-50"
+    >
+      {pending ? "Updating insights…" : "Update insights only"}
+    </button>
+  );
+}
+
 async function boundAdd(
   _prev: AddConferenceResult | null,
   formData: FormData,
@@ -44,9 +63,17 @@ async function boundRefresh(
   return runPipelineAction();
 }
 
+async function boundSynthesis(
+  _prev: PipelineResult | null,
+  _formData: FormData,
+): Promise<PipelineResult> {
+  return runSynthesisAction();
+}
+
 export function AddConferenceForm() {
   const [addState, addAction] = useFormState(boundAdd, null);
   const [refreshState, refreshAction] = useFormState(boundRefresh, null);
+  const [synthesisState, synthesisAction] = useFormState(boundSynthesis, null);
 
   return (
     <section className="mt-10 max-w-xl space-y-6">
@@ -147,21 +174,42 @@ export function AddConferenceForm() {
         ) : null}
       </form>
 
-      <form action={refreshAction}>
-        <RefreshButton />
-        {refreshState?.ok === true ? (
-          <p className="mt-3 text-sm text-gold" role="status">
-            {refreshState.queued
-              ? "Refresh started in the background (about 5–10 minutes for all conferences). Reload this page, then check Sources and Insights."
-              : "All conferences re-scraped and synthesis updated."}
-          </p>
-        ) : null}
-        {refreshState && refreshState.ok === false ? (
-          <p className="mt-3 text-sm text-parchment-muted" role="alert">
-            {refreshState.error}
-          </p>
-        ) : null}
-      </form>
+      <div className="flex flex-wrap gap-3">
+        <form action={refreshAction}>
+          <RefreshButton />
+        </form>
+        <form action={synthesisAction}>
+          <SynthesisButton />
+        </form>
+      </div>
+      <p className="mt-2 max-w-xl text-xs text-parchment-dim">
+        <strong className="text-parchment-muted">Update insights only</strong> re-runs Claude on saved
+        programme text (no Firecrawl). Use this when Sources look good but Insights are empty or outdated.
+      </p>
+      {refreshState?.ok === true ? (
+        <p className="mt-3 text-sm text-gold" role="status">
+          {refreshState.queued
+            ? "Refresh started in the background (scrape ~5–10 min, then insights ~2–3 min). Reload Sources and Insights."
+            : "All conferences re-scraped and synthesis updated."}
+        </p>
+      ) : null}
+      {refreshState && refreshState.ok === false ? (
+        <p className="mt-3 text-sm text-parchment-muted" role="alert">
+          {refreshState.error}
+        </p>
+      ) : null}
+      {synthesisState?.ok === true ? (
+        <p className="mt-3 text-sm text-gold" role="status">
+          {synthesisState.queued
+            ? "Insights update started in the background (~2–3 minutes). Reload the Insights page."
+            : "Insights updated from saved programme text."}
+        </p>
+      ) : null}
+      {synthesisState && synthesisState.ok === false ? (
+        <p className="mt-3 text-sm text-parchment-muted" role="alert">
+          {synthesisState.error}
+        </p>
+      ) : null}
     </section>
   );
 }
